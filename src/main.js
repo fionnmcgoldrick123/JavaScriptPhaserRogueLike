@@ -1,5 +1,6 @@
 import Enemies from "./enemies.js";
 import Player from "./player.js"; 
+import Lasers from "./lasers.js";
 
 const config = {
   type: Phaser.AUTO, // Automatically choose WebGL or Canvas
@@ -27,10 +28,12 @@ function preload() {
 }
 
 function create() {
+
   this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
 
   //array to store enemies
   this.enemyArray = [];
+  this.lasers = this.physics.add.group(); // Create a group for the lasers
 
   //adding collision between enemies in the array
   this.physics.add.collider(this.enemyArray, this.enemies);
@@ -40,10 +43,30 @@ function create() {
     this.scene.restart();
   });
 
+  this.physics.add.collider(this.lasers, this.enemyArray, (laser, enemy) => {
+    // Destroy the laser and the enemy if they collide
+    laser.destroy();
+    enemy.destroy();
+  });
+
+
   // Spawn enemies periodically
   this.time.addEvent({
     delay: 2000, // Spawn every 2 seconds
     callback: () => Enemies.spawnEnemy(this, this.enemyArray),
+    loop: true,
+  });
+
+   // Automatically fire lasers every 0.2 seconds
+   this.time.addEvent({
+    delay: 600, // Fire every 0.2 seconds
+    callback: () => {
+      const laser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
+      this.lasers.add(laser);
+
+      // Fire the laser toward the mouse pointer
+      laser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
+    },
     loop: true,
   });
 }

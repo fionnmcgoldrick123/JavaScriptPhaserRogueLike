@@ -10,6 +10,11 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
   update(player){
 
+    // Check if the enemy is still active
+    if (!this.active) {
+      return;
+    }
+
     const directionX = player.x - this.x;
     const directionY = player.y - this.y;
 
