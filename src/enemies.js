@@ -66,6 +66,16 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       // Create an orb at the enemy's position
       const orb = this.scene.orbGroup.get(); // Retrieve an orb from the group
 
+      if (!orb) {
+        console.log("No available orbs to retrieve!");
+        return; // Skip this iteration if no orb is available
+      }
+
+      // Ensure physics is added to the orb
+      if (!orb.body) {
+        this.scene.physics.add.existing(orb); // Add physics body if missing
+      }
+
       // Initialize the orb as a dynamic circle
       orb.setPosition(this.x, this.y); // Set orb position to enemy's position
       orb.setFillStyle(0x00ffff, 1); // Cyan color
@@ -76,13 +86,58 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       // Enable physics and set random velocities
       this.scene.physics.add.existing(orb);
       orb.body.setVelocity(
-        Phaser.Math.Between(-400, 400), // Random horizontal velocity
-        Phaser.Math.Between(-400, 400) // Random vertical velocity
+        Phaser.Math.Between(-30, 30), // Random horizontal velocity
+        Phaser.Math.Between(-30, 30) // Random vertical velocity
       );
       orb.body.setBounce(1); // Make the orbs bounce
       orb.body.setCollideWorldBounds(true); // Ensure orbs stay within bounds
-
-      
     }
   }
+
+  static orbCollection(scene, player, orbGroup) {
+    const followThreshold = 100; // Distance threshold for orbs to follow the player
+    const collectThreshold = 10; // Distance threshold for orb collection
+  
+    orbGroup.getChildren().forEach((orb) => {
+      if (!orb.active || !orb.body) return; // Skip inactive or uninitialized orbs
+  
+      // If the orb does not have a `canBeCollected` property, initialize it
+      if (orb.canBeCollected === undefined) {
+        orb.canBeCollected = false; // Initially, it cannot be collected
+  
+        // Set a one-second delay to make it collectible
+        scene.time.delayedCall(1000, () => {
+          orb.canBeCollected = true; // Allow collection after 1 second
+        });
+      }
+  
+      const distance = Phaser.Math.Distance.Between(
+        orb.x,
+        orb.y,
+        player.x,
+        player.y
+      );
+  
+      if (distance < followThreshold && orb.canBeCollected) {
+        const directionX = player.x - orb.x;
+        const directionY = player.y - orb.y;
+  
+        const speed = 100; // Orb follow speed
+        const magnitude = Math.sqrt(directionX ** 2 + directionY ** 2);
+  
+        orb.body.setVelocity(
+          (directionX / magnitude) * speed,
+          (directionY / magnitude) * speed
+        );
+      }
+  
+      if (distance < collectThreshold && orb.canBeCollected && orb.canBeCollected) {
+        orb.destroy(); // Destroy the orb upon collection
+        console.log("Orb collected!");
+        scene.playerScore = (scene.playerScore || 0) + 10; // Example score logic
+        console.log(`Score: ${scene.playerScore}`);
+      }
+    });
+  }
+  
 }
