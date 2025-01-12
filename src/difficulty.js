@@ -16,7 +16,7 @@ export default class Difficulty {
     switch(difficulty){
       case "crisisI":
         console.log("Crisis I");
-        this.scene.enemySpawn.delay = 1900;
+        this.scene.enemySpawn.delay = 1800;
         this.crisisI = true;
         this.crisisII = false;
         this.crisisIII = false;

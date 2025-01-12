@@ -1,15 +1,12 @@
 export default class Enemies extends Phaser.GameObjects.Ellipse {
-
   constructor(scene, x, y, radius, color) {
     super(scene, x, y, radius, radius, color);
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
-
   }
 
-  update(player){
-
+  update(player) {
     // Check if the enemy is still active
     if (!this.active) {
       return;
@@ -60,5 +57,32 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     enemiesArray.push(enemy);
   }
 
+  explode() {
+    console.log("Enemy exploding into orbs!"); // Debug log
 
+    const orbCount = 5; // Number of orbs to spawn
+
+    for (let i = 0; i < orbCount; i++) {
+      // Create an orb at the enemy's position
+      const orb = this.scene.orbGroup.get(); // Retrieve an orb from the group
+
+      // Initialize the orb as a dynamic circle
+      orb.setPosition(this.x, this.y); // Set orb position to enemy's position
+      orb.setFillStyle(0x00ffff, 1); // Cyan color
+      orb.setRadius(3); // Orb size
+      orb.setActive(true);
+      orb.setVisible(true);
+
+      // Enable physics and set random velocities
+      this.scene.physics.add.existing(orb);
+      orb.body.setVelocity(
+        Phaser.Math.Between(-400, 400), // Random horizontal velocity
+        Phaser.Math.Between(-400, 400) // Random vertical velocity
+      );
+      orb.body.setBounce(1); // Make the orbs bounce
+      orb.body.setCollideWorldBounds(true); // Ensure orbs stay within bounds
+
+      
+    }
   }
+}
