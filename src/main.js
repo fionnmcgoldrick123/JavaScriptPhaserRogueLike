@@ -33,7 +33,8 @@ function create() {
 
   //array to store enemies
   this.enemyArray = [];
-  this.lasers = this.physics.add.group(); // Create a group for the lasers
+  this.laserArray = [];
+
 
   //adding collision between enemies in the array
   this.physics.add.collider(this.enemyArray, this.enemies);
@@ -43,12 +44,20 @@ function create() {
     this.scene.restart();
   });
 
-  this.physics.add.collider(this.lasers, this.enemyArray, (laser, enemy) => {
+  // Add collision between lasers and world edge
+  this.physics.world.on("worldbounds", (body) => {
+    if (body.gameObject instanceof Lasers) {
+      body.gameObject.destroy();
+      console.log("laser fallen"); //debugging
+    }
+  });
+
+  this.physics.add.collider(this.laserArray, this.enemyArray, (laser, enemy) => {
     // Destroy the laser and the enemy if they collide
     laser.destroy();
     enemy.destroy();
+    console.log("enemy fallen"); //debugging
   });
-
 
   // Spawn enemies periodically
   this.time.addEvent({
@@ -57,13 +66,12 @@ function create() {
     loop: true,
   });
 
-   // Automatically fire lasers every 0.2 seconds
+
    this.time.addEvent({
-    delay: 600, // Fire every 0.2 seconds
+    delay: 1, 
     callback: () => {
       const laser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
-      this.lasers.add(laser);
-
+      this.laserArray.push(laser);
       // Fire the laser toward the mouse pointer
       laser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
     },
@@ -79,4 +87,6 @@ function update() {
   this.enemyArray.forEach((enemy) => {
     enemy.update(this.player);
   });
+
+
 }
