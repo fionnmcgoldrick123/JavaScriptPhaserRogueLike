@@ -42,7 +42,7 @@ function create() {
   collisionHandler(this);
 
   // Spawn enemies periodically
-  this.time.addEvent({
+  this.enemySpawn = this.time.addEvent({
     delay: 2000, 
     callback: () => Enemies.spawnEnemy(this, this.enemyArray),
     loop: true,
