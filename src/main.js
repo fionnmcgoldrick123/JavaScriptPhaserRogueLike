@@ -1,6 +1,7 @@
 import Enemies from "./enemies.js";
 import Player from "./player.js"; 
 import Lasers from "./lasers.js";
+import TimeHandler from "./time.js";
 
 const config = {
   type: Phaser.AUTO, // Automatically choose WebGL or Canvas
@@ -30,45 +31,26 @@ function preload() {
 function create() {
 
   this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
+  this.timer = new TimeHandler(this);
 
   //array to store enemies
   this.enemyArray = [];
   this.laserArray = [];
 
 
-  //adding collision between enemies in the array
-  this.physics.add.collider(this.enemyArray, this.enemies);
-
-  this.physics.add.collider(this.player, this.enemyArray, () => {
-    // Restart the game if player collides with an enemy
-    this.scene.restart();
-  });
-
-  // Add collision between lasers and world edge
-  this.physics.world.on("worldbounds", (body) => {
-    if (body.gameObject instanceof Lasers) {
-      body.gameObject.destroy();
-      console.log("laser fallen"); //debugging
-    }
-  });
-
-  this.physics.add.collider(this.laserArray, this.enemyArray, (laser, enemy) => {
-    // Destroy the laser and the enemy if they collide
-    laser.destroy();
-    enemy.destroy();
-    console.log("enemy fallen"); //debugging
-  });
+  //method that handles all collisions
+  collisionHandler(this);
 
   // Spawn enemies periodically
   this.time.addEvent({
-    delay: 2000, // Spawn every 2 seconds
+    delay: 2000, 
     callback: () => Enemies.spawnEnemy(this, this.enemyArray),
     loop: true,
   });
 
 
    this.time.addEvent({
-    delay: 1, 
+    delay: 600, 
     callback: () => {
       const laser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
       this.laserArray.push(laser);
@@ -76,6 +58,31 @@ function create() {
       laser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
     },
     loop: true,
+  });
+}
+
+function collisionHandler(scene){
+  //adding collision between enemies in the array
+  scene.physics.add.collider(scene.enemyArray, scene.enemies);
+
+  scene.physics.add.collider(scene.player, scene.enemyArray, () => {
+    // Restart the game if player collides with an enemy
+    scene.timer.reset();
+    scene.scene.restart();
+  });
+
+  // Add collision between lasers and world edge
+  scene.physics.world.on("worldbounds", (body) => {
+    if (body.gameObject instanceof Lasers) {
+      body.gameObject.destroy();
+      console.log("laser fallen"); //debugging
+    }
+  });
+
+  scene.physics.add.collider(scene.laserArray, scene.enemyArray, (laser, enemy) => {
+    // Destroy the laser and the enemy if they collide
+    laser.destroy();
+    enemy.destroy();
   });
 }
 
@@ -88,5 +95,8 @@ function update() {
     enemy.update(this.player);
   });
 
+   this.timer.update();
+    
 
 }
+
