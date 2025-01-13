@@ -114,8 +114,12 @@ export default class GameScene extends Phaser.Scene {
 // Phaser configuration
 const config = {
   type: Phaser.AUTO,
-  width: 1920,
-  height: 1080,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  scale: {
+    mode: Phaser.Scale.RESIZE, // Adjusts the canvas size dynamically
+    autoCenter: Phaser.Scale.CENTER_BOTH // Centers the game canvas
+},
   backgroundColor: "#000000",
   scene: [GameScene, PauseMenu],
   physics: {

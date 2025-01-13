@@ -1,3 +1,5 @@
+import Exp from "./exp.js";
+
 export default class Enemies extends Phaser.GameObjects.Ellipse {
   constructor(scene, x, y, radius, color) {
     super(scene, x, y, radius, radius, color);
@@ -5,6 +7,9 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
   }
+
+
+ 
 
   update(player) {
     // Check if the enemy is still active
@@ -58,7 +63,6 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
   }
 
   explode() {
-    console.log("Enemy exploding into orbs!"); // Debug log
 
     const orbCount = 5; // Number of orbs to spawn
 
@@ -95,11 +99,14 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
   }
 
   static orbCollection(scene, player, orbGroup) {
-    const followThreshold = 100; // Distance threshold for orbs to follow the player
+    const followThreshold = 250; // Distance threshold for orbs to follow the player
     const collectThreshold = 10; // Distance threshold for orb collection
+    
   
     orbGroup.getChildren().forEach((orb) => {
       if (!orb.active || !orb.body) return; // Skip inactive or uninitialized orbs
+
+      orb.setDepth(-1); // Set the orb depth to be behind the player
   
       // If the orb does not have a `canBeCollected` property, initialize it
       if (orb.canBeCollected === undefined) {
@@ -134,8 +141,8 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       if (distance < collectThreshold && orb.canBeCollected && orb.canBeCollected) {
         orb.destroy(); // Destroy the orb upon collection
         console.log("Orb collected!");
-        scene.playerScore = (scene.playerScore || 0) + 10; // Example score logic
-        console.log(`Score: ${scene.playerScore}`);
+        const expSystem = new Exp();
+        Exp.HandleExp(expSystem);
       }
     });
   }

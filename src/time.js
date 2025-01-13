@@ -25,6 +25,7 @@ export default class TimeHandler {
         }
       )
       .setOrigin(0.5, 0); // Center the text horizontally
+      
   }
 
   update() {
