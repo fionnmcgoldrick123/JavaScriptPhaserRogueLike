@@ -6,30 +6,29 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
+
+    this.expInstance = new Exp(this); // Initialize expInstance in the scene
   }
 
-
- 
+  
 
   update(player) {
-    // Check if the enemy is still active
-    if (!this.active) {
-      return;
-    }
+    if (!this.active) return;
 
     const directionX = player.x - this.x;
     const directionY = player.y - this.y;
-
     const speed = 100;
-
     const distance = Math.sqrt(directionX ** 2 + directionY ** 2);
 
-    //move constantly towards player
     this.body.setVelocity(
-      (directionX / distance) * speed,
-      (directionY / distance) * speed
+        (directionX / distance) * speed,
+        (directionY / distance) * speed
     );
-  }
+
+    // Pass the scene's expInstance to orbCollection
+    Enemies.orbCollection(this.scene, player, this.scene.orbGroup, this.scene.expInstance);
+}
+
 
   static spawnEnemy(scene, enemiesArray) {
     const width = scene.scale.width;
@@ -98,53 +97,51 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     }
   }
 
-  static orbCollection(scene, player, orbGroup) {
+  static orbCollection(scene, player, orbGroup, expInstance) {
     const followThreshold = 250; // Distance threshold for orbs to follow the player
     const collectThreshold = 10; // Distance threshold for orb collection
-    
-  
-    orbGroup.getChildren().forEach((orb) => {
-      if (!orb.active || !orb.body) return; // Skip inactive or uninitialized orbs
 
-      orb.setDepth(-1); // Set the orb depth to be behind the player
-  
-      // If the orb does not have a `canBeCollected` property, initialize it
-      if (orb.canBeCollected === undefined) {
-        orb.canBeCollected = false; // Initially, it cannot be collected
-  
-        // Set a one-second delay to make it collectible
-        scene.time.delayedCall(1000, () => {
-          orb.canBeCollected = true; // Allow collection after 1 second
-        });
-      }
-  
-      const distance = Phaser.Math.Distance.Between(
-        orb.x,
-        orb.y,
-        player.x,
-        player.y
-      );
-  
-      if (distance < followThreshold && orb.canBeCollected) {
-        const directionX = player.x - orb.x;
-        const directionY = player.y - orb.y;
-  
-        const speed = 100; // Orb follow speed
-        const magnitude = Math.sqrt(directionX ** 2 + directionY ** 2);
-  
-        orb.body.setVelocity(
-          (directionX / magnitude) * speed,
-          (directionY / magnitude) * speed
-        );
-      }
-  
-      if (distance < collectThreshold && orb.canBeCollected && orb.canBeCollected) {
-        orb.destroy(); // Destroy the orb upon collection
-        console.log("Orb collected!");
-        const expSystem = new Exp();
-        Exp.HandleExp(expSystem);
-      }
+    if (!expInstance) {
+        console.error("expInstance is undefined! Ensure it is properly initialized.");
+        return;
+    }
+
+    orbGroup.getChildren().forEach((orb) => {
+        if (!orb.active || !orb.body) return;
+
+        orb.setDepth(-1);
+
+        if (orb.canBeCollected === undefined) {
+            orb.canBeCollected = false;
+            scene.time.delayedCall(1000, () => {
+                orb.canBeCollected = true;
+            });
+        }
+
+        const distance = Phaser.Math.Distance.Between(orb.x, orb.y, player.x, player.y);
+
+        if (distance < followThreshold && orb.canBeCollected) {
+            const directionX = player.x - orb.x;
+            const directionY = player.y - orb.y;
+
+            const speed = 180;
+            const magnitude = Math.sqrt(directionX ** 2 + directionY ** 2);
+
+            orb.body.setVelocity(
+                (directionX / magnitude) * speed,
+                (directionY / magnitude) * speed
+            );
+        }
+
+        if (distance < collectThreshold && orb.canBeCollected) {
+            orb.destroy();
+            console.log("Orb collected!");
+            expInstance.handleExp(); // Call handleExp on the expInstance
+        }
     });
-  }
-  
+}
+
+
+ 
+
 }

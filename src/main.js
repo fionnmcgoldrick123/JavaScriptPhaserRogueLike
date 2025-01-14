@@ -3,6 +3,9 @@ import Player from "./player.js";
 import Lasers from "./lasers.js";
 import TimeHandler from "./time.js";
 import PauseMenu from "./pause.js";
+import Exp from "./exp.js";
+
+
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -14,6 +17,7 @@ export default class GameScene extends Phaser.Scene {
   create() {
     this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
     this.timer = new TimeHandler(this);
+    this.expInstance = new Exp(this);
 
     // Arrays to store enemies and lasers
     this.enemyArray = [];
@@ -99,7 +103,6 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.timer.update();
-    Enemies.orbCollection(this, this.player, this.orbGroup);
 
     if (Phaser.Input.Keyboard.JustDown(this.escapeKey)) {
       if (!this.isPaused) {

@@ -6,18 +6,18 @@ export default class Exp {
     this.exp = 0;
   }
 
-  static HandleExp(instance){
+   handleExp(){
     
-    instance.exp += 10;
-    instance.expToLvl = instance.lvl * 100;
+    this.exp += 10;
+    this.expToLvl = this.lvl * 100;
 
-    console.log("Exp: " + instance.exp);  
+    console.log("Exp: " + this.exp);  
 
-    if(instance.exp >= instance.expToLvl){
-      instance.lvl += 1;
-      instance.exp = 0;
-      instance.expToLvl = instance.lvl * 100;
-      console.log("Level Up!");
+    if(this.exp >= this.expToLvl){
+      this.lvl += 1;
+      this.exp = 0;
+      this.expToLvl = this.lvl * 100;
+      console.log("Level Up: " + this.lvl + "!");
     }
 
   }
