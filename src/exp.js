@@ -16,8 +16,9 @@ export default class Exp {
     if(this.exp >= this.expToLvl){
       this.lvl += 1;
       this.exp = 0;
-      this.expToLvl = this.lvl * 100;
       console.log("Level Up: " + this.lvl + "!");
+      this.scene.scene.pause();
+      this.scene.scene.launch("Items", {mainScene: this.scene, lvl: this.lvl});
     }
 
   }

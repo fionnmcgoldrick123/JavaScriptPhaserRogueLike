@@ -4,6 +4,7 @@ import Lasers from "./lasers.js";
 import TimeHandler from "./time.js";
 import PauseMenu from "./pause.js";
 import Exp from "./exp.js";
+import Items from "./items.js";
 
 
 
@@ -124,7 +125,7 @@ const config = {
     autoCenter: Phaser.Scale.CENTER_BOTH // Centers the game canvas
 },
   backgroundColor: "#000000",
-  scene: [GameScene, PauseMenu],
+  scene: [GameScene, PauseMenu, Items],
   physics: {
     default: "arcade",
     arcade: {

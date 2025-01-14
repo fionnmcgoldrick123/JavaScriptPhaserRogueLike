@@ -98,7 +98,7 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
   }
 
   static orbCollection(scene, player, orbGroup, expInstance) {
-    const followThreshold = 250; // Distance threshold for orbs to follow the player
+    const followThreshold = 50; // Distance threshold for orbs to follow the player
     const collectThreshold = 10; // Distance threshold for orb collection
 
     if (!expInstance) {
@@ -111,6 +111,11 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
         orb.setDepth(-1);
 
+        // Initialize properties for the orb if undefined
+        if (orb.lock === undefined) {
+            orb.lock = false; // Each orb tracks if it's locked to the player
+        }
+
         if (orb.canBeCollected === undefined) {
             orb.canBeCollected = false;
             scene.time.delayedCall(1000, () => {
@@ -120,7 +125,13 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
         const distance = Phaser.Math.Distance.Between(orb.x, orb.y, player.x, player.y);
 
+        // Lock the orb to the player if within followThreshold
         if (distance < followThreshold && orb.canBeCollected) {
+            orb.lock = true; // Lock this orb to the player
+        }
+
+        // Make locked orbs follow the player
+        if (orb.lock) {
             const directionX = player.x - orb.x;
             const directionY = player.y - orb.y;
 
@@ -133,13 +144,16 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
             );
         }
 
+        // Collect the orb if within collectThreshold
         if (distance < collectThreshold && orb.canBeCollected) {
             orb.destroy();
+            orb.lock = false; // Reset lock state
             console.log("Orb collected!");
             expInstance.handleExp(); // Call handleExp on the expInstance
         }
     });
 }
+
 
 
  
