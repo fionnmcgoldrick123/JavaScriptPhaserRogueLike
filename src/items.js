@@ -16,7 +16,7 @@ export default class Items extends Phaser.Scene {
         // Create a semi-transparent rectangle
         this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
 
-        this.add.text(width / 2, height / 4, `Level ${this.lvl} Reached!`, {
+        this.add.text(width / 2, height / 6, `Level ${this.lvl} Reached!`, {
             fontSize: '32px',
             color: '#ffffff',
         }).setOrigin(0.5);
@@ -29,13 +29,13 @@ export default class Items extends Phaser.Scene {
             const y = height / 2;
 
             // Create a rectangle for the border
-            const border = this.add.rectangle(x, y, 200, 50, 0x000000) // Black background
+            const border = this.add.rectangle(x, y, 250, 300, 0x000000) // Black background
                 .setStrokeStyle(2, 0xffffff) // White border
                 .setOrigin(0.5);
 
-            const itemButton = this.add.text(x, y, item.name, {
+            const itemButton = this.add.text(x, y / 1.90, item.name, {
                 fontSize: '24px',
-                color: '#00ff00',
+                color: '#ffffff',
                 backgroundColor: '#000000',
                 border: '2px solidrgb(255, 255, 255)',
                 padding: { x: 10, y: 10 },
@@ -44,14 +44,21 @@ export default class Items extends Phaser.Scene {
                 .setInteractive()
                 .on('pointerdown', () => this.selectItem(item));
         });
+
+        const itemDescription = this.add.text(x, y, 1.90, item.description, {
+            fontSize: '20px',
+            color: '#ffffff',
+            backgroundColor: '#000000',
+            border: '2px solidrgb(255, 255, 255)',
+        })
     }
 
     generateRandomItems() {
         // Example items with unique effects
         const allItems = [
-            { name: 'Increase Speed', effect: (gameScene) => gameScene.player.speed += 50 },
-            { name: 'Double Damage', effect: (gameScene) => gameScene.player.damage *= 2 },
-            { name: 'Extra Life', effect: (gameScene) => gameScene.lives += 1 },
+            { name: 'Increase Speed', effect: (gameScene) => gameScene.player.speed += 50, description: 'Item boosts players base speed by +10'},
+            { name: 'Fire Rate', effect: (gameScene) => gameScene.player.damage *= 2 },
+            { name: 'Magnet', effect: (gameScene) => gameScene.lives += 1 },
         ];
 
         // Shuffle and pick 3 random items

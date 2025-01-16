@@ -98,7 +98,7 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
   }
 
   static orbCollection(scene, player, orbGroup, expInstance) {
-    const followThreshold = 50; // Distance threshold for orbs to follow the player
+    const followThreshold = 1000; // Distance threshold for orbs to follow the player
     const collectThreshold = 10; // Distance threshold for orb collection
 
     if (!expInstance) {
