@@ -6,19 +6,20 @@ import PauseMenu from "./pause.js";
 import Exp from "./exp.js";
 import Items from "./items.js";
 
-
-
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: "GameScene" }); // Main game scene key
   }
 
-  preload() {}
-
   create() {
     this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
     this.timer = new TimeHandler(this);
     this.expInstance = new Exp(this);
+
+    // Variables for items
+    this.followThreshold = 50;
+    this.playerSpeed = 200;
+    this.fireRate = 600;
 
     // Arrays to store enemies and lasers
     this.enemyArray = [];
@@ -47,9 +48,19 @@ export default class GameScene extends Phaser.Scene {
       loop: true,
     });
 
-    // Spawn lasers periodically
-    this.time.addEvent({
-      delay: 600,
+    // Start laser firing
+    this.restartLaserTimer();
+  }
+
+  restartLaserTimer() {
+    // Remove existing timer if it exists
+    if (this.laserTimer) {
+      this.laserTimer.remove();
+    }
+
+    // Create a new laser timer with the current fireRate
+    this.laserTimer = this.time.addEvent({
+      delay: this.fireRate,
       callback: () => {
         const laser = new Lasers(
           this,
@@ -122,8 +133,8 @@ const config = {
   height: window.innerHeight,
   scale: {
     mode: Phaser.Scale.RESIZE, // Adjusts the canvas size dynamically
-    autoCenter: Phaser.Scale.CENTER_BOTH // Centers the game canvas
-},
+    autoCenter: Phaser.Scale.CENTER_BOTH, // Centers the game canvas
+  },
   backgroundColor: "#000000",
   scene: [GameScene, PauseMenu, Items],
   physics: {

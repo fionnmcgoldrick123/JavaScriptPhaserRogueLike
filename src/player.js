@@ -13,8 +13,6 @@ export default class Player extends Phaser.GameObjects.Ellipse {
     const directionX = pointer.x - this.x;
     const directionY = pointer.y - this.y;
 
-    const speed = 300;
-
     //normalize the direction
     const distance = Math.sqrt(directionX ** 2 + directionY ** 2);
 
@@ -23,8 +21,8 @@ export default class Player extends Phaser.GameObjects.Ellipse {
       // Only move if the distance is significant
       // Normalize the direction vector and apply speed
       this.body.setVelocity(
-        (directionX / distance) * speed,
-        (directionY / distance) * speed
+        (directionX / distance) * this.scene.playerSpeed,
+        (directionY / distance) * this.scene.playerSpeed
       );
     } else {
       // Stop the player if close enough to the pointer

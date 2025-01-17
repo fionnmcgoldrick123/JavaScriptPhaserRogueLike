@@ -1,80 +1,119 @@
 export default class Items extends Phaser.Scene {
+  constructor() {
+    super({ key: "Items" });
+  }
 
-    constructor() {
-        super({ key: "Items" });
-    }
+  init(data) {
+    this.mainScene = data.mainScene;
+    this.lvl = data.lvl;
+  }
 
-    init(data) {
-        this.mainScene = data.mainScene;
-        this.lvl = data.lvl;
-    }
+  create() {
+    const { width, height } = this.scale;
 
-    create() {
+    // Create a semi-transparent rectangle
+    this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
 
-        const { width, height } = this.scale;
+    this.add
+      .text(width / 2, height / 6, `Level ${this.lvl} Reached!`, {
+        fontSize: "32px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5);
 
-        // Create a semi-transparent rectangle
-        this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
+    const items = this.generateRandomItems();
 
-        this.add.text(width / 2, height / 6, `Level ${this.lvl} Reached!`, {
-            fontSize: '32px',
-            color: '#ffffff',
-        }).setOrigin(0.5);
+    // Display the items
+    items.forEach((item, index) => {
+      const x = (this.scale.width / 4) * (index + 1); // Responsive horizontal positioning
+      const y = this.scale.height / 2; // Center vertically
 
-        const items = this.generateRandomItems();
+      // Create the responsive rectangle
+      const border = this.add
+        .rectangle(
+          x,
+          y,
+          this.scale.width * 0.2,
+          this.scale.height * 0.3,
+          0x000000
+        )
+        .setStrokeStyle(2, 0xffffff)
+        .setOrigin(0.5)
+        .setInteractive();
 
-        // Display the items
-        items.forEach((item, index) => {
-            const x = (width / 4) * (index + 1);
-            const y = height / 2;
+      border.on("pointerover", () => {
+        //scale border size
+        border.setScale(1.1);
+      });
 
-            // Create a rectangle for the border
-            const border = this.add.rectangle(x, y, 250, 300, 0x000000) // Black background
-                .setStrokeStyle(2, 0xffffff) // White border
-                .setOrigin(0.5);
+      border.on("pointerout", () => {
+        //scale border size
+        border.setScale(1);
+      });
 
-            const itemButton = this.add.text(x, y / 1.90, item.name, {
-                fontSize: '24px',
-                color: '#ffffff',
-                backgroundColor: '#000000',
-                border: '2px solidrgb(255, 255, 255)',
-                padding: { x: 10, y: 10 },
-            })
-                .setOrigin(0.5)
-                .setInteractive()
-                .on('pointerdown', () => this.selectItem(item));
-        });
+      border.on("pointerdown", () => this.selectItem(item));
 
-        const itemDescription = this.add.text(x, y, 1.90, item.description, {
-            fontSize: '20px',
-            color: '#ffffff',
-            backgroundColor: '#000000',
-            border: '2px solidrgb(255, 255, 255)',
+      // Add the item name
+      const itemButton = this.add
+        .text(x, y - border.height / 4, item.name, {
+          fontSize: `${Math.min(this.scale.width, this.scale.height) * 0.03}px`, // Scaled font size
+          color: "#ffffff",
+          backgroundColor: "#000000",
+          padding: { x: 10, y: 10 },
         })
-    }
+        .setOrigin(0.5)
+        .setInteractive()
+        .on("pointerdown", () => this.selectItem(item));
 
-    generateRandomItems() {
-        // Example items with unique effects
-        const allItems = [
-            { name: 'Increase Speed', effect: (gameScene) => gameScene.player.speed += 50, description: 'Item boosts players base speed by +10'},
-            { name: 'Fire Rate', effect: (gameScene) => gameScene.player.damage *= 2 },
-            { name: 'Magnet', effect: (gameScene) => gameScene.lives += 1 },
-        ];
+      // Add the item description
+      const itemDescription = this.add
+        .text(x, y + border.height / 4, item.description, {
+          fontSize: `${
+            Math.min(this.scale.width, this.scale.height) * 0.025
+          }px`, // Scaled font size for description
+          color: "#ffffff",
+          wordWrap: { width: border.width * 0.9 }, // Ensure the text wraps within the rectangle
+          align: "center",
+        })
+        .setOrigin(0.5);
+    });
+  }
 
-        // Shuffle and pick 3 random items
-        return Phaser.Utils.Array.Shuffle(allItems).slice(0, 3);
-    }
+  generateRandomItems() {
+    const allItems = [
+      {
+        name: "Increase Speed",
+        effect: () => (this.mainScene.playerSpeed += 500),
+        description: "Item boosts player speed by +50",
+      },
+      {
+        name: "Fire Rate",
+        effect: () => {
+          this.mainScene.fireRate = Math.max(50, this.mainScene.fireRate - 500);
+          this.mainScene.restartLaserTimer(); // Restart timer with new fireRate
+        },
+        description: "Reduce the time between shots by 100ms",
+      },
+      {
+        name: "Magnet",
+        effect: () => (this.mainScene.followThreshold += 1000),
+        description: "Item increases player pickup range by +10",
+      },
+    ];
 
-    selectItem(item) {
-        console.log(`Selected: ${item.name}`);
+    // Shuffle and pick 3 random items
+    return Phaser.Utils.Array.Shuffle(allItems).slice(0, 3);
+  }
 
-        // Apply the selected item's effect
-        item.effect(this.gameScene);
+  selectItem(item) {
+    console.log("Item selected!");
+    console.log(`Selected: ${item.name}`);
 
-        // Resume the main game
-        this.scene.stop(); // Stop the LevelUpMenu
-        this.scene.resume(this.gameScene); // Resume the main game
-    }
+    // Apply the selected item's effect
+    item.effect(); // Use the effect on mainScene
 
+    // Resume the main game
+    this.scene.stop(); // Stop the Items menu
+    this.scene.resume("GameScene"); // Resume the main game
+  }
 }
-
