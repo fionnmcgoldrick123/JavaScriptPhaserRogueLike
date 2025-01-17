@@ -5,6 +5,7 @@ import TimeHandler from "./time.js";
 import PauseMenu from "./pause.js";
 import Exp from "./exp.js";
 import Items from "./items.js";
+import Boss from "./boss.js";
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -24,6 +25,7 @@ export default class GameScene extends Phaser.Scene {
     // Arrays to store enemies and lasers
     this.enemyArray = [];
     this.laserArray = [];
+    this.bossArray = [];
 
     // Escape key for pausing
     this.escapeKey = this.input.keyboard.addKey(
@@ -105,6 +107,12 @@ export default class GameScene extends Phaser.Scene {
         enemy.destroy();
       }
     );
+
+    //boss hit by laser
+    this.physics.add.collider(this.bossArray, this.laserArray, (boss, laser) => {
+      laser.destroy();
+      boss.takeDamage();
+    });
   }
 
   update() {
@@ -113,6 +121,11 @@ export default class GameScene extends Phaser.Scene {
     this.enemyArray.forEach((enemy) => {
       enemy.update(this.player);
     });
+
+    // Update lasers
+    if (this.bossArray) {
+      this.bossArray.forEach((boss) => boss.update(this.player));
+    }
 
     this.timer.update();
 

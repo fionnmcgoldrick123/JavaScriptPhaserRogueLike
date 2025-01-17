@@ -153,8 +153,4 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     });
 }
 
-
-
- 
-
 }

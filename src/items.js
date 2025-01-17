@@ -93,6 +93,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.restartLaserTimer(); // Restart timer with new fireRate
         },
         description: "Reduce the time between shots by 100ms",
+        
       },
       {
         name: "Magnet",

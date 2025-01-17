@@ -1,3 +1,5 @@
+import Boss from "./boss.js";
+
 export default class Difficulty {
 
   //three boolean variables to track difficulty
@@ -8,7 +10,8 @@ export default class Difficulty {
   //constructor to initialize the scene
   constructor(scene){
     this.scene = scene;
-  }
+    this.bossInstance = new Boss(this.scene);
+    }
 
   //function to update the difficulty
   update(difficulty){
@@ -20,6 +23,10 @@ export default class Difficulty {
         this.crisisI = true;
         this.crisisII = false;
         this.crisisIII = false;
+
+       this.bossInstance.spawnBoss();
+
+        
         break;
       case "crisisII":
         console.log("Crisis II");
