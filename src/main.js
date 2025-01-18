@@ -12,6 +12,13 @@ export default class GameScene extends Phaser.Scene {
     super({ key: "GameScene" }); // Main game scene key
   }
 
+
+  preload() {
+    this.load.audio("collect", "./resources/collect.mp3");
+    this.load.audio("hitmarker", "./resources/hitmarker.mp3");
+    this.load.audio("levelup", "./resources/levelUp.mp3");
+  }
+
   create() {
 
     this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
@@ -27,6 +34,11 @@ export default class GameScene extends Phaser.Scene {
     this.enemyArray = [];
     this.laserArray = [];
     this.bossArray = [];
+
+    //initialize audio
+    this.collect = this.sound.add("collect", { volume: 0.5 });
+    this.hitmarker = this.sound.add("hitmarker", { volume: 0.9 });
+    this.levelUp = this.sound.add("levelup", { volume: 1.0 });
 
     // Escape key for pausing
     this.escapeKey = this.input.keyboard.addKey(
@@ -111,6 +123,7 @@ export default class GameScene extends Phaser.Scene {
       this.laserArray,
       this.enemyArray,
       (laser, enemy) => {
+        this.hitmarker.play();
         laser.destroy();
         enemy.explode();
         enemy.destroy();
@@ -122,6 +135,7 @@ export default class GameScene extends Phaser.Scene {
       this.bossArray,
       this.laserArray,
       (boss, laser) => {
+        this.hitmarker.play();
         laser.destroy();
         boss.takeDamage();
       }

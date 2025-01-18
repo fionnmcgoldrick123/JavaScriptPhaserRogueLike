@@ -1,10 +1,6 @@
 import Difficulty from "./difficulty.js";
 
 export default class TimeHandler {
-  // Three boolean variables to track difficulty
-  crisisI = false;
-  crisisII = false;
-  crisisIII = false;
 
   constructor(scene) {
     this.scene = scene; // Store the scene reference

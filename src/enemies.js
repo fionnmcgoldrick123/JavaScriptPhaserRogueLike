@@ -7,9 +7,10 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
 
+
+
     this.expInstance = new Exp(this); // Initialize expInstance in the scene
   }
-
   
 
   update(player) {
@@ -147,6 +148,8 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
         if (distance < collectThreshold && orb.canBeCollected) {
             orb.destroy();
             orb.lock = false; // Reset lock state
+            //play collect sound from main
+            scene.collect.play();
             console.log("Orb collected!");
             expInstance.handleExp(); // Call handleExp on the expInstance
         }
