@@ -31,6 +31,7 @@ export default class GameScene extends Phaser.Scene {
     this.enemySpeed = 100;
     this.playerHealth = 0;
     this.explodeIntoLasers = false;
+    this.multiShot = false;
 
     // Arrays to store enemies and lasers
     this.enemyArray = [];
@@ -70,37 +71,60 @@ export default class GameScene extends Phaser.Scene {
   }
 
   restartLaserTimer() {
-    // Remove existing timer if it exists
     if (this.laserTimer) {
-      this.laserTimer.remove();
+        this.laserTimer.remove();
     }
 
-    // Create a new laser timer with the current fireRate
     this.laserTimer = this.time.addEvent({
-      delay: this.fireRate,
-      callback: () => {
-        const laser = new Lasers(
-          this,
-          this.player.x,
-          this.player.y,
-          5,
-          5,
-          0xffffff
-        );
-        this.laserArray.push(laser);
-        laser.fire(
-          this.player.x,
-          this.player.y,
-          this.input.activePointer.x,
-          this.input.activePointer.y
-        );
-      },
-      loop: true,
+        delay: this.fireRate,
+        callback: () => {
+            if (this.multiShot) {
+                // Fire three lasers at 45-degree angles
+                console.log("Multishot activated!");
+                this.fireMultiShot();
+            } else {
+                const laser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
+                this.laserArray.push(laser);
+                laser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
+            }
+        },
+        loop: true,
     });
-  }
+}
+
+fireMultiShot() {
+    const centerLaser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
+    const leftLaser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
+    const rightLaser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
+
+    this.laserArray.push(centerLaser, leftLaser, rightLaser);
+
+    // Fire the center laser towards the pointer
+    centerLaser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
+
+    // Calculate angle offsets
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
+    const leftAngle = angle - Phaser.Math.DegToRad(45);
+    const rightAngle = angle + Phaser.Math.DegToRad(45);
+
+    // Fire left and right lasers
+    leftLaser.body.setVelocity(
+        Math.cos(leftAngle) * this.laserSpeed,
+        Math.sin(leftAngle) * this.laserSpeed
+    );
+    rightLaser.body.setVelocity(
+        Math.cos(rightAngle) * this.laserSpeed,
+        Math.sin(rightAngle) * this.laserSpeed
+    );
+}
+
 
   collisionHandler() {
     this.physics.add.collider(this.enemyArray, this.enemies);
+
+    this.physics.add.collider(this.bossArray, this.bossArray);
+
+    this.physics.add.collider(this.enemyArray, this.bossArray);
 
     this.physics.add.collider(this.player, this.enemyArray, () => {
       if (this.canTakeDamage == false) return;
@@ -162,7 +186,7 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    this.physics.add.collider(
+    this.physics.add.overlap(
       this.laserArray,
       this.enemyArray,
       (laser, enemy) => {
@@ -202,8 +226,13 @@ export default class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.escapeKey)) {
       if (!this.isPaused) {
         this.scene.pause();
+        this.timer.pause(); // Pause the timer
         this.scene.launch("PauseMenu");
         this.isPaused = true;
+      } else {
+        this.scene.resume();
+        this.timer.resume(); // Resume the timer
+        this.isPaused = false;
       }
     }
   }
@@ -225,6 +254,7 @@ const config = {
     arcade: {
       gravity: { y: 0 },
       debug: false,
+      fps: 60,
     },
   },
 };

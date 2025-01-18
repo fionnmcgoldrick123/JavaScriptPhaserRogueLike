@@ -18,8 +18,10 @@ export default class PauseMenu extends Phaser.Scene {
 
     this.input.keyboard.on("keydown-ESC", () => {
       console.log("Resuming game...");
-      this.scene.stop(); // Stop the pause menu scene
-      this.scene.get("GameScene").isPaused = false; // Unpause the main game scene
+      const gameScene = this.scene.get("GameScene");
+      gameScene.isPaused = false; // Mark the game as unpaused
+      gameScene.timer.resume(); // Resume the timer
+      this.scene.stop(); // Stop the pause menu
       this.scene.resume("GameScene"); // Resume the main game scene
     });
   }

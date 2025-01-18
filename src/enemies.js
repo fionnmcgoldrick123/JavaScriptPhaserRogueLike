@@ -197,10 +197,9 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       // Collect the orb if within collectThreshold
       if (distance < collectThreshold && orb.canBeCollected) {
         orb.destroy();
+        console.log("current magnet" + scene.followThreshold);
         orb.lock = false; // Reset lock state
-        //play collect sound from main
         scene.collect.play();
-        console.log("Orb collected!");
         expInstance.handleExp(); // Call handleExp on the expInstance
       }
     });

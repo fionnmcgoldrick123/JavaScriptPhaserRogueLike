@@ -11,8 +11,6 @@ export default class Exp {
     this.exp += 10;
     this.expToLvl = this.lvl * 100;
 
-    console.log("Exp: " + this.exp);  
-
     if(this.exp >= this.expToLvl){
       this.lvl += 1;
       this.exp = 0;

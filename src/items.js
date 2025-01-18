@@ -6,6 +6,8 @@ export default class Items extends Phaser.Scene {
   init(data) {
     this.mainScene = data.mainScene;
     this.lvl = data.lvl;
+
+    this.mainScene.scene.pause(); // Pause the main game
   }
 
   create() {
@@ -80,36 +82,53 @@ export default class Items extends Phaser.Scene {
   }
 
   generateRandomItems() {
-
     const allItems = [
       {
         name: "Increase Speed",
-        effect: () => (this.mainScene.playerSpeed += 500),
+        effect: () => {
+          (this.mainScene.playerSpeed += 500),
+            (this.mainScene.playerSpeed = Math.min(
+              500,
+              this.mainScene.playerSpeed
+            ));
+        },
         description: "Boosts player speed by +50",
       },
       {
         name: "Fire Rate",
         effect: () => {
-          this.mainScene.fireRate = Math.max(50, this.mainScene.fireRate - 500);
-          this.mainScene.restartLaserTimer(); // Restart timer with new fireRate
+          this.mainScene.fireRate -= 1000; // Reduce the time between shots by 100ms
+          this.mainScene.fireRate = Math.max(50, this.mainScene.fireRate); // Ensure minimum fire rate is 100ms
+          this.mainScene.restartLaserTimer(); // Restart timer with new fire rate
         },
         description: "Reduce the time between shots by 100ms",
-        
       },
       {
         name: "Magnet",
-        effect: () => (this.mainScene.followThreshold += 1000),
+        effect: () => {
+          (this.mainScene.followThreshold += 1000),
+            (this.mainScene.followThreshold = Math.min(
+              350,
+              this.mainScene.followThreshold
+            ));
+        },
         description: "Increases player pickup range by +10",
       },
       {
         name: "Laser Speed",
-        effect: () => (this.mainScene.laserSpeed += 1000),
+        effect: () => {
+          this.mainScene.laserSpeed += 1000;
+          this.mainScene.laserSpeed = Math.min(1000, this.mainScene.laserSpeed);
+        },
         description: "Increases laser speed by +100",
       },
       {
         name: "Enemy Speed",
-        effect: () => (this.mainScene.enemySpeed -= 50),
-        description: "Decreases enemy speed by -15",
+        effect: () => {
+          this.mainScene.enemySpeed -= 50; // Decrease enemy speed by 50
+          this.mainScene.enemySpeed = Math.max(50, this.mainScene.enemySpeed); // Ensure minimum speed is 50
+        },
+        description: "Decreases enemy speed by -50",
       },
 
       {
@@ -120,8 +139,16 @@ export default class Items extends Phaser.Scene {
       {
         name: "Laser-Splosion",
         effect: () => (this.mainScene.explodeIntoLasers = true),
-        description: "Enemies explode into more lasers!"
-      }
+        description: "Enemies explode into more lasers!",
+      },
+      {
+        name: "Multi-Shot",
+        effect: () => {
+          this.mainScene.multiShot = true; // Ensure this flag is set
+          this.mainScene.restartLaserTimer(); // Restart laser timer after activation
+        },
+        description: "Shoot 3 lasers at once",
+      }      
     ];
 
     // Shuffle and pick 3 random items
@@ -137,6 +164,7 @@ export default class Items extends Phaser.Scene {
 
     // Resume the main game
     this.scene.stop(); // Stop the Items menu
+    this.mainScene.timer.resume(); // Resume the timer
     this.scene.resume("GameScene"); // Resume the main game
   }
 }

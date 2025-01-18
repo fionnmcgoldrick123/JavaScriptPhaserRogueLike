@@ -7,9 +7,11 @@ export default class Lasers extends Phaser.GameObjects.Rectangle {
     this.body.setCollideWorldBounds(true); // Ensure collision with world bounds
     this.body.onWorldBounds = true; // Enable world bounds event
     this.body.setAllowGravity(false); // Prevent gravity from affecting lasers
+    this.body.useDamping = true; // Enable damping for smoother movement
   }
 
   fire(startX, startY, targetX, targetY) {
+    console.log("Firing laser..." + this.scene.laserSpeed);
     // Position the laser at the player's position
     this.setPosition(startX, startY);
 
@@ -24,5 +26,7 @@ export default class Lasers extends Phaser.GameObjects.Rectangle {
 
     // Set the laser's velocity
     this.body.setVelocity(normalizedX, normalizedY);
+
+    
   }
 }
