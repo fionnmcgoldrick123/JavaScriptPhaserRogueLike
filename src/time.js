@@ -21,6 +21,7 @@ export default class TimeHandler {
           color: "#ffffff",
         }
       )
+      .setDepth(1) // Ensure the text is above everything else
       .setOrigin(0.5, 0); // Center the text horizontally
       
   }

@@ -7,7 +7,6 @@ export default class Lasers extends Phaser.GameObjects.Rectangle {
     this.body.setCollideWorldBounds(true); // Ensure collision with world bounds
     this.body.onWorldBounds = true; // Enable world bounds event
     this.body.setAllowGravity(false); // Prevent gravity from affecting lasers
-    this.speed = 400; // Default speed
   }
 
   fire(startX, startY, targetX, targetY) {
@@ -20,8 +19,8 @@ export default class Lasers extends Phaser.GameObjects.Rectangle {
 
     // Normalize the direction vector
     const distance = Math.sqrt(directionX ** 2 + directionY ** 2);
-    const normalizedX = (directionX / distance) * this.speed;
-    const normalizedY = (directionY / distance) * this.speed;
+    const normalizedX = (directionX / distance) * this.scene.laserSpeed;
+    const normalizedY = (directionY / distance) * this.scene.laserSpeed;
 
     // Set the laser's velocity
     this.body.setVelocity(normalizedX, normalizedY);

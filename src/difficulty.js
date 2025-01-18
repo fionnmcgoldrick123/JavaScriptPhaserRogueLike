@@ -24,7 +24,9 @@ export default class Difficulty {
     this.difficultyText = this.scene.add.text(10, 10, "0", {
       fontSize: "52px",
       color: "#ffffff",
-    });
+    })
+    .setDepth(1) // Ensure the text is above everything else
+    .setFontStyle("bold");
   }
 
   update(difficulty) {

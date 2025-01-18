@@ -14,6 +14,14 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     this.maxHealth = maxHealth; // Store max health for reference
     this.isDefeated = false; // Boss is not defeated initially
 
+    // Add boss HP text inside the circle
+    this.hpText = this.scene.add
+      .text( {
+        fontSize: "32px",
+        color: "#ffffff",
+        align: "center",
+      })
+      .setOrigin(0.5); 
   }
 
   update(player) {
@@ -31,12 +39,16 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
       (directionY / distance) * speed
     );
 
-
+    // Update HP text position
+    this.hpText.setPosition(this.x, this.y);
   }
 
   takeDamage(amount = 1) {
     this.health -= amount; // Reduce boss health
     console.log(`Boss Health: ${this.health}`);
+
+    // Update HP text
+    this.hpText.setText(`${this.health}`);
 
     // Check if the boss is defeated
     if (this.health <= 0) {
@@ -51,7 +63,8 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     // Add explosion effect or animation if desired
     this.explode();
 
-    // Destroy the boss
+    // Destroy the boss and HP text
+    this.hpText.destroy();
     this.destroy();
   }
 

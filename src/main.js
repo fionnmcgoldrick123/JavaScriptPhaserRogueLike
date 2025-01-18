@@ -12,7 +12,6 @@ export default class GameScene extends Phaser.Scene {
     super({ key: "GameScene" }); // Main game scene key
   }
 
-
   preload() {
     this.load.audio("collect", "./resources/collect.mp3");
     this.load.audio("hitmarker", "./resources/hitmarker.mp3");
@@ -20,7 +19,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-
     this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
     this.timer = new TimeHandler(this);
     this.expInstance = new Exp(this);
@@ -29,6 +27,10 @@ export default class GameScene extends Phaser.Scene {
     this.followThreshold = 50;
     this.playerSpeed = 200;
     this.fireRate = 600;
+    this.laserSpeed = 300;
+    this.enemySpeed = 100;
+    this.playerHealth = 0;
+    this.explodeIntoLasers = false;
 
     // Arrays to store enemies and lasers
     this.enemyArray = [];
@@ -101,22 +103,63 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.enemyArray, this.enemies);
 
     this.physics.add.collider(this.player, this.enemyArray, () => {
-      this.timer.reset();
-      this.scene.restart(); // Restart the game scene
+      if (this.canTakeDamage == false) return;
+
+      if (this.playerHealth == 0) {
+        this.timer.reset();
+        this.scene.restart(); // Restart the game scene
+      } else {
+        this.playerHealth--;
+        console.log("Player Health: " + this.playerHealth);
+        //delay before player can take damage again
+
+        this.canTakeDamage = false;
+        //change color of circle to gray
+        this.player.setFillStyle(0x808080);
+
+        this.time.addEvent({
+          delay: 1000,
+          callback: () => {
+            this.canTakeDamage = true;
+            //change color of circle back to white
+            this.player.setFillStyle(0xffffff);
+          },
+        });
+      }
     });
 
     this.physics.world.on("worldbounds", (body) => {
       if (body.gameObject instanceof Lasers) {
         body.gameObject.destroy();
       }
+    });
 
-      //collisions between bosses and enemies
-      this.physics.add.collider(this.bossArray, this.enemyArray);
+    //collisions between bosses and enemies
+    this.physics.add.collider(this.bossArray, this.enemyArray);
 
-      this.physics.add.collider(this.bossArray, this.player, () => {
+    this.physics.add.collider(this.bossArray, this.player, () => {
+      if (this.canTakeDamage == false) return;
+
+      if (this.playerHealth == 0) {
         this.timer.reset();
         this.scene.restart();
-      });
+      } else {
+        this.playerHealth--;
+        console.log("Player Health: " + this.playerHealth);
+
+        this.canTakeDamage = false;
+        //change color of circle to gray
+        this.player.setFillStyle(0x808080);
+
+        this.time.addEvent({
+          delay: 1000,
+          callback: () => {
+            this.canTakeDamage = true;
+            //change color of circle back to white
+            this.player.setFillStyle(0xffffff);
+          },
+        });
+      }
     });
 
     this.physics.add.collider(

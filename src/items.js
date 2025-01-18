@@ -80,11 +80,12 @@ export default class Items extends Phaser.Scene {
   }
 
   generateRandomItems() {
+
     const allItems = [
       {
         name: "Increase Speed",
         effect: () => (this.mainScene.playerSpeed += 500),
-        description: "Item boosts player speed by +50",
+        description: "Boosts player speed by +50",
       },
       {
         name: "Fire Rate",
@@ -98,8 +99,29 @@ export default class Items extends Phaser.Scene {
       {
         name: "Magnet",
         effect: () => (this.mainScene.followThreshold += 1000),
-        description: "Item increases player pickup range by +10",
+        description: "Increases player pickup range by +10",
       },
+      {
+        name: "Laser Speed",
+        effect: () => (this.mainScene.laserSpeed += 1000),
+        description: "Increases laser speed by +100",
+      },
+      {
+        name: "Enemy Speed",
+        effect: () => (this.mainScene.enemySpeed -= 50),
+        description: "Decreases enemy speed by -15",
+      },
+
+      {
+        name: "Saving Grace",
+        effect: () => (this.mainScene.playerHealth += 1),
+        description: "Increases player health by +1",
+      },
+      {
+        name: "Laser-Splosion",
+        effect: () => (this.mainScene.explodeIntoLasers = true),
+        description: "Enemies explode into more lasers!"
+      }
     ];
 
     // Shuffle and pick 3 random items
