@@ -6,9 +6,26 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     super(scene, x, y, radius, radius, color);
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    this.body.setCollideWorldBounds(true);
+    this.body.setCollideWorldBounds(false);
     this.expInstance = new Exp(this); // Initialize expInstance in the scene
   }
+
+  reactivate(x, y) {
+    this.setActive(true);
+    this.setVisible(true);
+    this.setPosition(x, y);
+    this.body.setVelocity(0);
+    this.body.enable = true; // Enable the physics body
+  }
+
+  deactivate() {
+    this.setActive(false);
+    this.setVisible(false);
+    this.body.setVelocity(0);
+    this.body.enable = false; // Disable the physics body
+    console.log(`Deactivated enemy at (${this.x}, ${this.y})`);
+  }
+  
 
   update(player) {
     if (!this.active) return;
@@ -42,24 +59,31 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     if (edge === 1) {
       // Top edge
       x = Phaser.Math.Between(0, width);
-      y = -20; // Just outside the top edge
+      y = -10; // Just outside the top edge
     } else if (edge === 2) {
       // Bottom edge
       x = Phaser.Math.Between(0, width);
-      y = height + 20; // Just outside the bottom edge
+      y = height + 5; // Just outside the bottom edge
     } else if (edge === 3) {
       // Left edge
-      x = -20; // Just outside the left edge
+      x = -10; // Just outside the left edge
       y = Phaser.Math.Between(0, height);
     } else {
       // Right edge
-      x = width + 20; // Just outside the right edge
+      x = width + 10; // Just outside the right edge
       y = Phaser.Math.Between(0, height);
     }
 
-    // Create a new enemy and add it to the array
-    const enemy = new Enemies(scene, x, y, 20, 0xff0000);
-    enemiesArray.push(enemy);
+    let enemy = enemiesArray.find((e) => !e.active);
+
+    if(enemy){
+      enemy.reactivate(x, y);
+      console.log("Reactivated enemy!");
+    }else{
+      enemy = new Enemies(scene, x, y, 20, 0xff0000);
+      enemiesArray.push(enemy);
+      console.log("New enemy spawned!");
+    }
   }
 
   explode() {

@@ -169,7 +169,7 @@ export default class GameScene extends Phaser.Scene {
         this.hitmarker.play();
         laser.destroy();
         enemy.explode();
-        enemy.destroy();
+        enemy.deactivate();
       }
     );
 
