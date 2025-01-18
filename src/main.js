@@ -5,7 +5,7 @@ import TimeHandler from "./time.js";
 import PauseMenu from "./pause.js";
 import Exp from "./exp.js";
 import Items from "./items.js";
-import Boss from "./boss.js";
+import Difficulty from "./difficulty.js";
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +13,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+
     this.player = new Player(this, 100, 100, 20, 0xffffff); // Create player object
     this.timer = new TimeHandler(this);
     this.expInstance = new Exp(this);
@@ -96,6 +97,14 @@ export default class GameScene extends Phaser.Scene {
       if (body.gameObject instanceof Lasers) {
         body.gameObject.destroy();
       }
+
+      //collisions between bosses and enemies
+      this.physics.add.collider(this.bossArray, this.enemyArray);
+
+      this.physics.add.collider(this.bossArray, this.player, () => {
+        this.timer.reset();
+        this.scene.restart();
+      });
     });
 
     this.physics.add.collider(
@@ -109,10 +118,14 @@ export default class GameScene extends Phaser.Scene {
     );
 
     //boss hit by laser
-    this.physics.add.collider(this.bossArray, this.laserArray, (boss, laser) => {
-      laser.destroy();
-      boss.takeDamage();
-    });
+    this.physics.add.collider(
+      this.bossArray,
+      this.laserArray,
+      (boss, laser) => {
+        laser.destroy();
+        boss.takeDamage();
+      }
+    );
   }
 
   update() {

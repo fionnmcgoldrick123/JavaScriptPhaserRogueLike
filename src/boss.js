@@ -1,5 +1,5 @@
 export default class Boss extends Phaser.GameObjects.Ellipse {
-  constructor(scene, x, y, radius, color, maxHealth = 10) {
+  constructor(scene, x, y, radius, color, maxHealth) {
     if (!scene) {
       throw new Error("Scene is required to create a Boss instance.");
     }
@@ -14,19 +14,6 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     this.maxHealth = maxHealth; // Store max health for reference
     this.isDefeated = false; // Boss is not defeated initially
 
-    // Store initial width for consistent scaling
-    this.initialHealthBarWidth = radius * 2; // Match boss's diameter
-
-    // Health bar setup
-    this.healthBar = scene.add
-      .rectangle(
-        this.x, // Center horizontally
-        this.y - radius - 20, // Position directly above the boss
-        this.initialHealthBarWidth, // Initial width of the health bar
-        10, // Fixed height
-        0xff0000 // Initial color (red)
-      )
-      .setOrigin(0.5, 0.5); // Center the bar on its origin
   }
 
   update(player) {
@@ -44,22 +31,12 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
       (directionY / distance) * speed
     );
 
-    // Update health bar position to remain above the boss
-    this.healthBar.setPosition(this.x, this.y - this.displayHeight / 2 - 20);
+
   }
 
   takeDamage(amount = 1) {
     this.health -= amount; // Reduce boss health
     console.log(`Boss Health: ${this.health}`);
-
-    // Calculate health percentage
-    const healthPercentage = Math.max(0, this.health / this.maxHealth);
-
-    // Smoothly scale the health bar's width
-    this.healthBar.width = this.initialHealthBarWidth * healthPercentage;
-
-    // Update health bar color
-    this.healthBar.fillColor = healthPercentage > 0.5 ? 0x00ff00 : 0xffa500; // Green if > 50%, orange otherwise
 
     // Check if the boss is defeated
     if (this.health <= 0) {
@@ -74,13 +51,12 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     // Add explosion effect or animation if desired
     this.explode();
 
-    // Destroy the boss and health bar
-    this.healthBar.destroy();
+    // Destroy the boss
     this.destroy();
   }
 
   explode() {
-    const orbCount = 15; // Number of orbs to spawn
+    const orbCount = 30; // Number of orbs to spawn
     for (let i = 0; i < orbCount; i++) {
       const orb = this.scene.orbGroup.get();
       if (!orb) continue; // Skip if no orb is available
@@ -102,7 +78,7 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     }
   }
 
-  spawnBoss() {
+  spawnBoss(currentHp) {
     const { width, height } = this.scene.scale;
 
     // Randomly determine spawn location in one of the corners
@@ -128,7 +104,7 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
         break;
     }
 
-    const boss = new Boss(this.scene, x, y, 60, 0xff0000, 20); // Adjust radius and health as needed
+    const boss = new Boss(this.scene, x, y, 60, 0xff0000, currentHp); // Adjust radius and health as needed
     this.scene.bossArray.push(boss);
   }
 }
