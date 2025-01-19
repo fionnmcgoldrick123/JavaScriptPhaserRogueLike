@@ -32,6 +32,7 @@ export default class GameScene extends Phaser.Scene {
     this.playerHealth = 0;
     this.explodeIntoLasers = false;
     this.multiShot = false;
+    this.expGained = 10; 
 
     // Arrays to store enemies and lasers
     this.enemyArray = [];
@@ -53,7 +54,7 @@ export default class GameScene extends Phaser.Scene {
     this.orbGroup = this.physics.add.group({
       classType: Phaser.GameObjects.Arc,
       runChildUpdate: true,
-      maxSize: 1000, // Limit to 1000 orbs
+      maxSize: 250, 
     });
 
     // Handle collisions

@@ -30,7 +30,7 @@ export default class Items extends Phaser.Scene {
       const x = (this.scale.width / 4) * (index + 1); // Responsive horizontal positioning
       const y = this.scale.height / 2; // Center vertically
 
-      // Create the responsive rectangle
+      // Create the responsive rectangle with dynamic color
       const border = this.add
         .rectangle(
           x,
@@ -39,26 +39,24 @@ export default class Items extends Phaser.Scene {
           this.scale.height * 0.3,
           0x000000
         )
-        .setStrokeStyle(2, 0xffffff)
+        .setStrokeStyle(2, item.color)
         .setOrigin(0.5)
         .setInteractive();
 
       border.on("pointerover", () => {
-        //scale border size
         border.setScale(1.1);
       });
 
       border.on("pointerout", () => {
-        //scale border size
         border.setScale(1);
       });
 
       border.on("pointerdown", () => this.selectItem(item));
 
-      // Add the item name
+      // Add the item name and description (unchanged)
       const itemButton = this.add
         .text(x, y - border.height / 4, item.name, {
-          fontSize: `${Math.min(this.scale.width, this.scale.height) * 0.03}px`, // Scaled font size
+          fontSize: `${Math.min(this.scale.width, this.scale.height) * 0.03}px`,
           color: "#ffffff",
           backgroundColor: "#000000",
           padding: { x: 10, y: 10 },
@@ -67,14 +65,13 @@ export default class Items extends Phaser.Scene {
         .setInteractive()
         .on("pointerdown", () => this.selectItem(item));
 
-      // Add the item description
       const itemDescription = this.add
         .text(x, y + border.height / 4, item.description, {
           fontSize: `${
             Math.min(this.scale.width, this.scale.height) * 0.025
-          }px`, // Scaled font size for description
+          }px`,
           color: "#ffffff",
-          wordWrap: { width: border.width * 0.9 }, // Ensure the text wraps within the rectangle
+          wordWrap: { width: border.width * 0.9 },
           align: "center",
         })
         .setOrigin(0.5);
@@ -93,6 +90,8 @@ export default class Items extends Phaser.Scene {
             ));
         },
         description: "Boosts player speed by +50",
+        rarity: { min: 0, max: 50 }, //common 50% chance
+        color: 0xffffff,
       },
       {
         name: "Fire Rate",
@@ -102,6 +101,8 @@ export default class Items extends Phaser.Scene {
           this.mainScene.restartLaserTimer(); // Restart timer with new fire rate
         },
         description: "Reduce the time between shots by 100ms",
+        rarity: { min: 51, max: 75 }, //uncommon 22% chance
+        color: 0x00ff00,
       },
       {
         name: "Magnet",
@@ -113,6 +114,8 @@ export default class Items extends Phaser.Scene {
             ));
         },
         description: "Increases player pickup range by +10",
+        rarity: { min: 51, max: 75 }, //uncommon 22% chance
+        color: 0x00ff00,
       },
       {
         name: "Laser Speed",
@@ -121,6 +124,8 @@ export default class Items extends Phaser.Scene {
           this.mainScene.laserSpeed = Math.min(1000, this.mainScene.laserSpeed);
         },
         description: "Increases laser speed by +100",
+        rarity: { min: 0, max: 50 }, //common 50% chance
+        color: 0xffffff,
       },
       {
         name: "Enemy Speed",
@@ -129,17 +134,23 @@ export default class Items extends Phaser.Scene {
           this.mainScene.enemySpeed = Math.max(50, this.mainScene.enemySpeed); // Ensure minimum speed is 50
         },
         description: "Decreases enemy speed by -50",
+        rarity: { min: 51, max: 75 }, //uncommon 22% chance
+        color: 0x00ff00,
       },
 
       {
         name: "Saving Grace",
         effect: () => (this.mainScene.playerHealth += 1),
         description: "Increases player health by +1",
+        rarity: { min: 81, max: 93 }, //rare 12% chance
+        color: 0x800080,
       },
       {
         name: "Laser-Splosion",
         effect: () => (this.mainScene.explodeIntoLasers = true),
         description: "Enemies explode into more lasers!",
+        rarity: { min: 94, max: 100 }, //legendary 6% chance
+        color: 0xffff00,
       },
       {
         name: "Multi-Shot",
@@ -147,12 +158,41 @@ export default class Items extends Phaser.Scene {
           this.mainScene.multiShot = true; // Ensure this flag is set
           this.mainScene.restartLaserTimer(); // Restart laser timer after activation
         },
-        description: "Shoot 3 lasers at once",
-      }      
+        description: "Shoot 3 lasers at once!",
+        rarity: { min: 81, max: 93 }, //rare 12% chance
+        color: 0x800080,
+      },
+      {
+        name: "Double EXP",
+        effect: () => {
+          //make exp gained from main scene = 20
+          this.mainScene.expGained = 20;
+        },
+        description: "Doubles the experience gained",
+        rarity: { min: 94, max: 100 }, //legendary 6% chance
+        color: 0xffff00,
+      },
     ];
 
-    // Shuffle and pick 3 random items
-    return Phaser.Utils.Array.Shuffle(allItems).slice(0, 3);
+    // Perform three independent dice rolls
+    const selectedItems = [];
+    for (let i = 0; i < 3; i++) {
+      const rarityRoll = Phaser.Math.Between(1, 100); // Roll a number between 1 and 100
+      console.log(`Dice roll ${i + 1}: ${rarityRoll}`);
+
+      // Find the first item that matches the rarity roll
+      const matchingItem = allItems.find(
+        (item) => rarityRoll >= item.rarity.min && rarityRoll <= item.rarity.max
+      );
+
+      // Ensure no duplicate items by removing the selected item from the pool
+      if (matchingItem) {
+        selectedItems.push(matchingItem);
+        allItems.splice(allItems.indexOf(matchingItem), 1); // Remove the item from the array
+      }
+    }
+
+    return selectedItems;
   }
 
   selectItem(item) {

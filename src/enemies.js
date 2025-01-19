@@ -25,7 +25,6 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     this.body.enable = false; // Disable the physics body
     console.log(`Deactivated enemy at (${this.x}, ${this.y})`);
   }
-  
 
   update(player) {
     if (!this.active) return;
@@ -76,10 +75,10 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
     let enemy = enemiesArray.find((e) => !e.active);
 
-    if(enemy){
+    if (enemy) {
       enemy.reactivate(x, y);
       console.log("Reactivated enemy!");
-    }else{
+    } else {
       enemy = new Enemies(scene, x, y, 20, 0xff0000);
       enemiesArray.push(enemy);
       console.log("New enemy spawned!");
@@ -90,37 +89,45 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
     const orbCount = 5; // Number of orbs to spawn
 
     for (let i = 0; i < orbCount; i++) {
-      // Create an orb at the enemy's position
-      const orb = this.scene.orbGroup.get(); // Retrieve an orb from the group
+      // Retrieve the first inactive orb from the group
+      let orb = this.scene.orbGroup.getFirstDead();
 
       if (!orb) {
-        console.log("No available orbs to retrieve!");
-        return; // Skip this iteration if no orb is available
+        console.log("Creating new orb");
+        // Create a new orb if none are available
+        orb = this.scene.add.circle(this.x, this.y, 3, 0x00ffff); // Create a new circle
+        this.scene.orbGroup.add(orb); // Add to the group
+        this.scene.physics.add.existing(orb); // Add physics body
+        orb.body.setCollideWorldBounds(true); // Keep orbs within bounds
+        orb.body.setBounce(1); // Make the orbs bounce
+
+        orb.lock = false; // Initialize lock state
+        orb.canBeCollected = false; // Initialize collectibility
+      } else {
+        // Reuse the existing inactive orb
+        orb.setPosition(this.x, this.y);
+        console.log("Reusing orb");
       }
 
-      // Ensure physics is added to the orb
-      if (!orb.body) {
-        this.scene.physics.add.existing(orb); // Add physics body if missing
-      }
-
-      // Initialize the orb as a dynamic circle
-      orb.setPosition(this.x, this.y); // Set orb position to enemy's position
-      orb.setFillStyle(0x00ffff, 1); // Cyan color
-      orb.setRadius(3); // Orb size
+      // Reactivate and reset the orb
       orb.setActive(true);
       orb.setVisible(true);
+      orb.lock = false; // Reset lock state
+      orb.canBeCollected = false; // Reset collectibility
 
-      // Enable physics and set random velocities
-      this.scene.physics.add.existing(orb);
+      // Add a delay before the orb can be collected
+      this.scene.time.delayedCall(1000, () => {
+        orb.canBeCollected = true;
+      });
+
+      // Set random velocity
       orb.body.setVelocity(
         Phaser.Math.Between(-30, 30), // Random horizontal velocity
         Phaser.Math.Between(-30, 30) // Random vertical velocity
       );
-      orb.body.setBounce(1); // Make the orbs bounce
-      orb.body.setCollideWorldBounds(true); // Ensure orbs stay within bounds
     }
 
-    // If the explodeIntoLasers effect is active, spawn lasers
+    // Handle the "explode into lasers" logic if enabled
     if (this.scene.explodeIntoLasers) {
       const laserCount = 8; // Number of lasers to spawn
       const angleStep = (2 * Math.PI) / laserCount; // Divide the circle into equal angles
@@ -156,18 +163,6 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
       orb.setDepth(-1);
 
-      // Initialize properties for the orb if undefined
-      if (orb.lock === undefined) {
-        orb.lock = false; // Each orb tracks if it's locked to the player
-      }
-
-      if (orb.canBeCollected === undefined) {
-        orb.canBeCollected = false;
-        scene.time.delayedCall(1000, () => {
-          orb.canBeCollected = true;
-        });
-      }
-
       const distance = Phaser.Math.Distance.Between(
         orb.x,
         orb.y,
@@ -175,9 +170,11 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
         player.y
       );
 
+      if (!orb.canBeCollected) return;
+
       // Lock the orb to the player if within followThreshold
-      if (distance < scene.followThreshold && orb.canBeCollected) {
-        orb.lock = true; // Lock this orb to the player
+      if (distance < scene.followThreshold) {
+        orb.lock = true;
       }
 
       // Make locked orbs follow the player
@@ -195,12 +192,15 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       }
 
       // Collect the orb if within collectThreshold
-      if (distance < collectThreshold && orb.canBeCollected) {
-        orb.destroy();
-        console.log("current magnet" + scene.followThreshold);
-        orb.lock = false; // Reset lock state
+      if (distance < collectThreshold) {
+        orb.setActive(false);
+        orb.setVisible(false);
+        orb.body.stop();
+        orb.lock = false;
+        orb.canBeCollected = false;
         scene.collect.play();
-        expInstance.handleExp(); // Call handleExp on the expInstance
+        expInstance.handleExp();
+        console.log("Orb collected");
       }
     });
   }

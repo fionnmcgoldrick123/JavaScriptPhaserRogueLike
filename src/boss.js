@@ -70,26 +70,49 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
 
   explode() {
     const orbCount = 30; // Number of orbs to spawn
+
     for (let i = 0; i < orbCount; i++) {
-      const orb = this.scene.orbGroup.get();
-      if (!orb) continue; // Skip if no orb is available
+        let orb = this.scene.orbGroup.getFirstDead(); // Retrieve an inactive orb
 
-      orb.setPosition(this.x, this.y);
-      orb.setFillStyle(0x00ffff, 1); // Cyan color
-      orb.setRadius(3);
-      orb.setActive(true);
-      orb.setVisible(true);
+        if (!orb) {
+            console.log("Creating new orb for boss explosion");
+            // Create a new orb if none are available
+            orb = this.scene.add.circle(this.x, this.y, 3, 0x00ffff);
+            this.scene.orbGroup.add(orb); // Add to orb group
+            this.scene.physics.add.existing(orb); // Add physics body
+            orb.body.setCollideWorldBounds(true);
+            orb.body.setBounce(1);
 
-      // Set random velocity
-      if (!orb.body) this.scene.physics.add.existing(orb);
-      orb.body.setVelocity(
-        Phaser.Math.Between(-100, 100),
-        Phaser.Math.Between(-100, 100)
-      );
-      orb.body.setBounce(1);
-      orb.body.setCollideWorldBounds(true);
+            // Initialize custom properties
+            orb.lock = false;
+            orb.canBeCollected = false;
+        } else {
+            console.log("Reusing orb for boss explosion");
+            // Reuse the existing inactive orb
+            orb.setPosition(this.x, this.y);
+        }
+
+        // Reactivate and reset state
+        orb.setActive(true);
+        orb.setVisible(true);
+        orb.lock = false; // Reset lock state
+        orb.canBeCollected = false; // Reset collectibility
+
+        // Ensure delayed collectibility
+        this.scene.time.delayedCall(1000, () => {
+            orb.canBeCollected = true;
+            console.log("Boss orb is now collectible");
+        });
+
+        // Reset physics and set random velocity
+        orb.body.reset(this.x, this.y); // Reset physics body position
+        orb.body.setVelocity(
+            Phaser.Math.Between(-100, 100), // Random horizontal velocity
+            Phaser.Math.Between(-100, 100) // Random vertical velocity
+        );
     }
-  }
+}
+
 
   spawnBoss(currentHp) {
     const { width, height } = this.scene.scale;

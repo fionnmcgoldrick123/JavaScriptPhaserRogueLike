@@ -8,8 +8,9 @@ export default class Exp {
 
    handleExp(){
     
-    this.exp += 10;
+    this.exp += this.scene.expGained;
     this.expToLvl = this.lvl * 100;
+    console.log("exp: " + this.scene.expGained);
 
     if(this.exp >= this.expToLvl){
       this.lvl += 1;
