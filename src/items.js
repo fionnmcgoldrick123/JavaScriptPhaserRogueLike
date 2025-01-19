@@ -101,7 +101,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.restartLaserTimer(); // Restart timer with new fire rate
         },
         description: "Reduce the time between shots by 100ms",
-        rarity: { min: 51, max: 75 }, //uncommon 22% chance
+        rarity: { min: 51, max: 80 }, //uncommon 29% chance
         color: 0x00ff00,
       },
       {
@@ -114,7 +114,7 @@ export default class Items extends Phaser.Scene {
             ));
         },
         description: "Increases player pickup range by +10",
-        rarity: { min: 51, max: 75 }, //uncommon 22% chance
+        rarity: { min: 51, max: 80 }, //uncommon 29% chance
         color: 0x00ff00,
       },
       {
@@ -134,7 +134,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.enemySpeed = Math.max(50, this.mainScene.enemySpeed); // Ensure minimum speed is 50
         },
         description: "Decreases enemy speed by -50",
-        rarity: { min: 51, max: 75 }, //uncommon 22% chance
+        rarity: { min: 51, max: 80 }, //uncommon 29% chance
         color: 0x00ff00,
       },
 
@@ -174,21 +174,28 @@ export default class Items extends Phaser.Scene {
       },
     ];
 
-    // Perform three independent dice rolls
     const selectedItems = [];
+    const usedItems = new Set(); // Track items already selected in this round
+
     for (let i = 0; i < 3; i++) {
       const rarityRoll = Phaser.Math.Between(1, 100); // Roll a number between 1 and 100
       console.log(`Dice roll ${i + 1}: ${rarityRoll}`);
 
-      // Find the first item that matches the rarity roll
-      const matchingItem = allItems.find(
-        (item) => rarityRoll >= item.rarity.min && rarityRoll <= item.rarity.max
+      // Filter items matching the rarity roll and not already selected
+      const availableItems = allItems.filter(
+        (item) =>
+          rarityRoll >= item.rarity.min &&
+          rarityRoll <= item.rarity.max &&
+          !usedItems.has(item.name)
       );
 
-      // Ensure no duplicate items by removing the selected item from the pool
-      if (matchingItem) {
-        selectedItems.push(matchingItem);
-        allItems.splice(allItems.indexOf(matchingItem), 1); // Remove the item from the array
+      if (availableItems.length > 0) {
+        // Randomly pick one of the available items
+        const selectedItem =
+          availableItems[Phaser.Math.Between(0, availableItems.length - 1)];
+
+        selectedItems.push(selectedItem);
+        usedItems.add(selectedItem.name); // Mark item as used for this round
       }
     }
 

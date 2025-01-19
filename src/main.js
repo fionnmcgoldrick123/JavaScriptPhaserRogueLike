@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
     this.playerHealth = 0;
     this.explodeIntoLasers = false;
     this.multiShot = false;
-    this.expGained = 10; 
+    this.expGained = 10;
 
     // Arrays to store enemies and lasers
     this.enemyArray = [];
@@ -54,7 +54,7 @@ export default class GameScene extends Phaser.Scene {
     this.orbGroup = this.physics.add.group({
       classType: Phaser.GameObjects.Arc,
       runChildUpdate: true,
-      maxSize: 250, 
+      maxSize: 500,
     });
 
     // Handle collisions
@@ -71,54 +71,185 @@ export default class GameScene extends Phaser.Scene {
     this.restartLaserTimer();
   }
 
+  consolidateOrbs() {
+    console.log("Adding excess orbs to the yellow orb!");
+
+    // Collect all active orbs
+    const activeOrbs = this.orbGroup.getChildren().filter((orb) => orb.active);
+    if (activeOrbs.length === 0) return;
+
+    const playerX = this.player.x;
+    const playerY = this.player.y;
+
+    // If yellow orb is already spawned, just accumulate XP
+    const totalExp = this.expGained; // Adding experience for new orbs
+
+    if (this.yellowOrb && this.yellowOrb.active) {
+      console.log("Yellow orb is already active. Adding new XP.");
+      this.yellowOrb.totalExp += totalExp; // Add experience to the existing yellow orb
+      return; // Exit since the yellow orb is already handling excess orbs
+    }
+
+    // Determine the furthest orb from the player
+    let furthestOrb = activeOrbs[0];
+    let maxDistance = 0;
+
+    activeOrbs.forEach((orb) => {
+      const distance = Phaser.Math.Distance.Between(
+        playerX,
+        playerY,
+        orb.x,
+        orb.y
+      );
+      if (distance > maxDistance) {
+        maxDistance = distance;
+        furthestOrb = orb;
+      }
+    });
+
+    // Spawn the yellow orb at the furthest orb's position
+    if (!this.yellowOrb) {
+      this.yellowOrb = this.add.circle(
+        furthestOrb.x,
+        furthestOrb.y,
+        3,
+        0xffff00
+      ); // Yellow color
+      this.physics.add.existing(this.yellowOrb);
+      this.yellowOrb.body.setCollideWorldBounds(true);
+      this.yellowOrb.body.setBounce(1);
+      this.yellowOrb.canBeCollected = true;
+      this.yellowOrb.totalExp = totalExp; // Initialize experience accumulation
+
+      // Add overlap detection
+      this.physics.add.collider(this.player, this.yellowOrb, () => {
+        this.collectYellowOrb();
+      });
+
+      console.log(
+        `Yellow orb spawned at (${this.yellowOrb.x}, ${this.yellowOrb.y})`
+      );
+    } else {
+      // If the yellow orb exists but isn't active, reactivate it
+      this.yellowOrb.setPosition(furthestOrb.x, furthestOrb.y);
+      this.yellowOrb.setActive(true);
+      this.yellowOrb.setVisible(true);
+      this.yellowOrb.body.setVelocity(
+        Phaser.Math.Between(-50, 50),
+        Phaser.Math.Between(-50, 50)
+      );
+      this.yellowOrb.totalExp = totalExp; // Reset experience accumulation
+    }
+  }
+
+  collectYellowOrb() {
+  if (!this.yellowOrb.canBeCollected) return;
+
+  console.log("Yellow orb collected!");
+
+  // Deactivate the yellow orb
+  this.yellowOrb.setActive(false);
+  this.yellowOrb.setVisible(false);
+  this.yellowOrb.body.stop();
+
+  // Add cumulative experience
+  const totalExp = this.yellowOrb.totalExp || 0; // Use accumulated XP
+  this.expInstance.exp += totalExp;
+  this.expInstance.handleExp(); // Trigger level up if applicable
+
+  console.log(`Gained ${totalExp} experience from the yellow orb!`);
+}
+
   restartLaserTimer() {
     if (this.laserTimer) {
-        this.laserTimer.remove();
+      this.laserTimer.remove();
     }
 
     this.laserTimer = this.time.addEvent({
-        delay: this.fireRate,
-        callback: () => {
-            if (this.multiShot) {
-                // Fire three lasers at 45-degree angles
-                console.log("Multishot activated!");
-                this.fireMultiShot();
-            } else {
-                const laser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
-                this.laserArray.push(laser);
-                laser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
-            }
-        },
-        loop: true,
+      delay: this.fireRate,
+      callback: () => {
+        if (this.multiShot) {
+          // Fire three lasers at 45-degree angles
+          console.log("Multishot activated!");
+          this.fireMultiShot();
+        } else {
+          const laser = new Lasers(
+            this,
+            this.player.x,
+            this.player.y,
+            5,
+            5,
+            0xffffff
+          );
+          this.laserArray.push(laser);
+          laser.fire(
+            this.player.x,
+            this.player.y,
+            this.input.activePointer.x,
+            this.input.activePointer.y
+          );
+        }
+      },
+      loop: true,
     });
-}
+  }
 
-fireMultiShot() {
-    const centerLaser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
-    const leftLaser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
-    const rightLaser = new Lasers(this, this.player.x, this.player.y, 5, 5, 0xffffff);
+  fireMultiShot() {
+    const centerLaser = new Lasers(
+      this,
+      this.player.x,
+      this.player.y,
+      5,
+      5,
+      0xffffff
+    );
+    const leftLaser = new Lasers(
+      this,
+      this.player.x,
+      this.player.y,
+      5,
+      5,
+      0xffffff
+    );
+    const rightLaser = new Lasers(
+      this,
+      this.player.x,
+      this.player.y,
+      5,
+      5,
+      0xffffff
+    );
 
     this.laserArray.push(centerLaser, leftLaser, rightLaser);
 
     // Fire the center laser towards the pointer
-    centerLaser.fire(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
+    centerLaser.fire(
+      this.player.x,
+      this.player.y,
+      this.input.activePointer.x,
+      this.input.activePointer.y
+    );
 
     // Calculate angle offsets
-    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, this.input.activePointer.x, this.input.activePointer.y);
+    const angle = Phaser.Math.Angle.Between(
+      this.player.x,
+      this.player.y,
+      this.input.activePointer.x,
+      this.input.activePointer.y
+    );
     const leftAngle = angle - Phaser.Math.DegToRad(45);
     const rightAngle = angle + Phaser.Math.DegToRad(45);
 
     // Fire left and right lasers
     leftLaser.body.setVelocity(
-        Math.cos(leftAngle) * this.laserSpeed,
-        Math.sin(leftAngle) * this.laserSpeed
+      Math.cos(leftAngle) * this.laserSpeed,
+      Math.sin(leftAngle) * this.laserSpeed
     );
     rightLaser.body.setVelocity(
-        Math.cos(rightAngle) * this.laserSpeed,
-        Math.sin(rightAngle) * this.laserSpeed
+      Math.cos(rightAngle) * this.laserSpeed,
+      Math.sin(rightAngle) * this.laserSpeed
     );
-}
-
+  }
 
   collisionHandler() {
     this.physics.add.collider(this.enemyArray, this.enemies);

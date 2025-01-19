@@ -72,6 +72,12 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     const orbCount = 30; // Number of orbs to spawn
 
     for (let i = 0; i < orbCount; i++) {
+
+      if (this.scene.orbGroup.countActive(true) >= this.scene.orbGroup.maxSize) {
+        console.log("Orb group at capacity, skipping orb creation.");
+        return; // Skip spawning more orbs
+      }
+
         let orb = this.scene.orbGroup.getFirstDead(); // Retrieve an inactive orb
 
         if (!orb) {

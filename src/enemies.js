@@ -87,11 +87,16 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
   explode() {
     const orbCount = 5; // Number of orbs to spawn
-
+  
     for (let i = 0; i < orbCount; i++) {
-      // Retrieve the first inactive orb from the group
+      if (this.scene.orbGroup.countActive(true) >= this.scene.orbGroup.maxSize) {
+        console.log("Orb group at capacity. Adding new orbs to yellow orb.");
+        this.scene.consolidateOrbs(); // Add excess orbs to yellow orb
+        return; // Stop further orb creation
+      }
+  
       let orb = this.scene.orbGroup.getFirstDead();
-
+  
       if (!orb) {
         console.log("Creating new orb");
         // Create a new orb if none are available
@@ -147,6 +152,7 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       }
     }
   }
+  
 
   static orbCollection(scene, player, orbGroup, expInstance) {
     const collectThreshold = 10; // Distance threshold for orb collection
@@ -204,4 +210,6 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       }
     });
   }
+
+  
 }
