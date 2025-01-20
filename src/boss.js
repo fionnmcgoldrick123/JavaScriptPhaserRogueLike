@@ -9,6 +9,7 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     scene.physics.add.existing(this);
 
     this.body.setCollideWorldBounds(true); // Prevent boss from leaving the screen
+    this.body.setImmovable(false);
     this.scene = scene; // Store the scene for later use
     this.health = maxHealth; // Initialize health
     this.maxHealth = maxHealth; // Store max health for reference

@@ -11,7 +11,6 @@ export default class Lasers extends Phaser.GameObjects.Rectangle {
   }
 
   fire(startX, startY, targetX, targetY) {
-    console.log("Firing laser..." + this.scene.laserSpeed);
     // Position the laser at the player's position
     this.setPosition(startX, startY);
 

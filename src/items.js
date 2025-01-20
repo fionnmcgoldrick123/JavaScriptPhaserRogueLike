@@ -101,7 +101,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.restartLaserTimer(); // Restart timer with new fire rate
         },
         description: "Reduce the time between shots by 100ms",
-        rarity: { min: 51, max: 80 }, //uncommon 29% chance
+        rarity: { min: 51, max: 85 }, //uncommon 34% chance
         color: 0x00ff00,
       },
       {
@@ -114,7 +114,7 @@ export default class Items extends Phaser.Scene {
             ));
         },
         description: "Increases player pickup range by +10",
-        rarity: { min: 51, max: 80 }, //uncommon 29% chance
+        rarity: { min: 51, max: 85 }, //uncommon 34% chance
         color: 0x00ff00,
       },
       {
@@ -134,7 +134,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.enemySpeed = Math.max(50, this.mainScene.enemySpeed); // Ensure minimum speed is 50
         },
         description: "Decreases enemy speed by -50",
-        rarity: { min: 51, max: 80 }, //uncommon 29% chance
+        rarity: { min: 51, max: 85 }, //uncommon 34% chance
         color: 0x00ff00,
       },
 
@@ -142,14 +142,14 @@ export default class Items extends Phaser.Scene {
         name: "Saving Grace",
         effect: () => (this.mainScene.playerHealth += 1),
         description: "Increases player health by +1",
-        rarity: { min: 81, max: 93 }, //rare 12% chance
+        rarity: { min: 86, max: 95 }, //rare 9% chance
         color: 0x800080,
       },
       {
         name: "Laser-Splosion",
         effect: () => (this.mainScene.explodeIntoLasers = true),
         description: "Enemies explode into more lasers!",
-        rarity: { min: 94, max: 100 }, //legendary 6% chance
+        rarity: { min: 96, max: 100 }, //legendary 4% chance
         color: 0xffff00,
       },
       {
@@ -159,7 +159,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.restartLaserTimer(); // Restart laser timer after activation
         },
         description: "Shoot 3 lasers at once!",
-        rarity: { min: 81, max: 93 }, //rare 12% chance
+        rarity: { min: 86, max: 95 }, //rare 9% chance
         color: 0x800080,
       },
       {
@@ -169,7 +169,7 @@ export default class Items extends Phaser.Scene {
           this.mainScene.expGained = 20;
         },
         description: "Doubles the experience gained",
-        rarity: { min: 94, max: 100 }, //legendary 6% chance
+        rarity: { min: 96, max: 100 }, //legendary 4% chance
         color: 0xffff00,
       },
     ];

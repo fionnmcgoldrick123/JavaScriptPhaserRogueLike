@@ -72,7 +72,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   consolidateOrbs() {
-    console.log("Adding excess orbs to the yellow orb!");
 
     // Collect all active orbs
     const activeOrbs = this.orbGroup.getChildren().filter((orb) => orb.active);
@@ -85,7 +84,6 @@ export default class GameScene extends Phaser.Scene {
     const totalExp = this.expGained; // Adding experience for new orbs
 
     if (this.yellowOrb && this.yellowOrb.active) {
-      console.log("Yellow orb is already active. Adding new XP.");
       this.yellowOrb.totalExp += totalExp; // Add experience to the existing yellow orb
       return; // Exit since the yellow orb is already handling excess orbs
     }
@@ -145,8 +143,6 @@ export default class GameScene extends Phaser.Scene {
   collectYellowOrb() {
   if (!this.yellowOrb.canBeCollected) return;
 
-  console.log("Yellow orb collected!");
-
   // Deactivate the yellow orb
   this.yellowOrb.setActive(false);
   this.yellowOrb.setVisible(false);
@@ -170,7 +166,6 @@ export default class GameScene extends Phaser.Scene {
       callback: () => {
         if (this.multiShot) {
           // Fire three lasers at 45-degree angles
-          console.log("Multishot activated!");
           this.fireMultiShot();
         } else {
           const laser = new Lasers(
@@ -355,17 +350,13 @@ export default class GameScene extends Phaser.Scene {
 
     this.timer.update();
 
-    if (Phaser.Input.Keyboard.JustDown(this.escapeKey)) {
+    if (Phaser.Input.Keyboard.JustDown(this.escapeKey) && !this.isPaused) {
       if (!this.isPaused) {
         this.scene.pause();
         this.timer.pause(); // Pause the timer
         this.scene.launch("PauseMenu");
         this.isPaused = true;
-      } else {
-        this.scene.resume();
-        this.timer.resume(); // Resume the timer
-        this.isPaused = false;
-      }
+      } 
     }
   }
 }
