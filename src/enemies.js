@@ -76,16 +76,14 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
 
     if (enemy) {
       enemy.reactivate(x, y);
-      console.log("Reactivated enemy!");
     } else {
       enemy = new Enemies(scene, x, y, 20, 0xff0000);
       enemiesArray.push(enemy);
-      console.log("New enemy spawned!");
     }
   }
 
   explode() {
-    const orbCount = 5500; // Number of orbs to spawn
+    const orbCount = 5; // Number of orbs to spawn
   
     for (let i = 0; i < orbCount; i++) {
       if (this.scene.orbGroup.countActive(true) >= this.scene.orbGroup.maxSize) {
@@ -96,7 +94,6 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       let orb = this.scene.orbGroup.getFirstDead();
   
       if (!orb) {
-        console.log("Creating new orb");
         // Create a new orb if none are available
         orb = this.scene.add.circle(this.x, this.y, 3, 0x00ffff); // Create a new circle
         this.scene.orbGroup.add(orb); // Add to the group
@@ -109,7 +106,6 @@ export default class Enemies extends Phaser.GameObjects.Ellipse {
       } else {
         // Reuse the existing inactive orb
         orb.setPosition(this.x, this.y);
-        console.log("Reusing orb");
       }
 
       // Reactivate and reset the orb

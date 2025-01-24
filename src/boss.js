@@ -46,7 +46,6 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
 
   takeDamage(amount = 1) {
     this.health -= amount; // Reduce boss health
-    console.log(`Boss Health: ${this.health}`);
 
     // Update HP text
     this.hpText.setText(`${this.health}`);
@@ -59,7 +58,6 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
 
   defeat() {
     this.isDefeated = true;
-    console.log("Boss defeated!");
 
     // Add explosion effect or animation if desired
     this.explode();
@@ -75,14 +73,12 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
     for (let i = 0; i < orbCount; i++) {
 
       if (this.scene.orbGroup.countActive(true) >= this.scene.orbGroup.maxSize) {
-        console.log("Orb group at capacity, skipping orb creation.");
         return; // Skip spawning more orbs
       }
 
         let orb = this.scene.orbGroup.getFirstDead(); // Retrieve an inactive orb
 
         if (!orb) {
-            console.log("Creating new orb for boss explosion");
             // Create a new orb if none are available
             orb = this.scene.add.circle(this.x, this.y, 3, 0x00ffff);
             this.scene.orbGroup.add(orb); // Add to orb group
@@ -94,7 +90,6 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
             orb.lock = false;
             orb.canBeCollected = false;
         } else {
-            console.log("Reusing orb for boss explosion");
             // Reuse the existing inactive orb
             orb.setPosition(this.x, this.y);
         }
@@ -108,7 +103,6 @@ export default class Boss extends Phaser.GameObjects.Ellipse {
         // Ensure delayed collectibility
         this.scene.time.delayedCall(1000, () => {
             orb.canBeCollected = true;
-            console.log("Boss orb is now collectible");
         });
 
         // Reset physics and set random velocity

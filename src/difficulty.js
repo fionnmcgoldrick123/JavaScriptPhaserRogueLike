@@ -31,13 +31,11 @@ export default class Difficulty {
 
   update(difficulty) {
     if (!this.difficultyText) {
-      console.log("Difficulty text not found");
       return;
     }
 
     switch (difficulty) {
       case "crisisI":
-        console.log("Crisis I");
         this.scene.enemySpawn.delay = 1800;
         this.crisisI = true;
         this.difficultyText.setText("I");
@@ -45,7 +43,6 @@ export default class Difficulty {
         break;
 
       case "crisisII":
-        console.log("Crisis II");
         this.scene.enemySpawn.delay = 1200;
         this.crisisI = false;
         this.crisisII = true;
@@ -54,7 +51,6 @@ export default class Difficulty {
         break;
 
       case "crisisIII":
-        console.log("Crisis III");
         this.scene.enemySpawn.delay = 600;
         this.crisisII = false;
         this.crisisIII = true;
@@ -63,7 +59,6 @@ export default class Difficulty {
         break;
 
       case "crisisIV":
-        console.log("Crisis IV");
         this.scene.enemySpawn.delay = 500;
         this.crisisIII = false;
         this.crisisIV = true;
@@ -72,7 +67,6 @@ export default class Difficulty {
         break;
 
       case "crisisV":
-        console.log("Crisis V");
         this.scene.enemySpawn.delay = 300;
         this.crisisIV = false;
         this.crisisV = true;
@@ -81,7 +75,6 @@ export default class Difficulty {
         break;
 
       case "crisisVI":
-        console.log("Crisis VI");
         this.scene.enemySpawn.delay = 200;
         this.crisisV = false;
         this.crisisVI = true;
@@ -90,7 +83,6 @@ export default class Difficulty {
         break;
 
       case "crisisVII":
-        console.log("Crisis VII");
         this.scene.enemySpawn.delay = 150;
         this.crisisVI = false;
         this.crisisVII = true;
@@ -99,7 +91,6 @@ export default class Difficulty {
         break;
 
       case "crisisVIII":
-        console.log("Crisis VIII");
         this.scene.enemySpawn.delay = 120;
         this.crisisVII = false;
         this.crisisVIII = true;
@@ -108,7 +99,6 @@ export default class Difficulty {
         break;
 
       case "crisisIX":
-        console.log("Crisis IX");
         this.scene.enemySpawn.delay = 100;
         this.crisisVIII = false;
         this.crisisIX = true;
@@ -117,7 +107,6 @@ export default class Difficulty {
         break;
 
       case "crisisX":
-        console.log("Crisis X");
         this.scene.enemySpawn.delay = 80;
         this.crisisIX = false;
         this.crisisX = true;

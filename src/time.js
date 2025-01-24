@@ -42,7 +42,6 @@ export default class TimeHandler {
     if (!this.timerPaused) {
       this.timerPaused = true; // Set paused state
       this.pausedAt = this.scene.time.now; // Record when the timer was paused
-      console.log(`Timer paused at: ${this.pausedAt}`);
     }
   }
 
@@ -52,14 +51,11 @@ export default class TimeHandler {
       const pausedDuration = resumeTime - this.pausedAt; // Calculate pause duration
       this.totalPausedDuration += pausedDuration; // Accumulate total paused time
       this.timerPaused = false; // Unpause
-      console.log(
-        `Timer resumed at: ${resumeTime}, Total Paused Duration: ${this.totalPausedDuration}`
-      );
+      
     }
   }
 
   reset() {
-    console.log("Resetting timer...");
     this.startTime = this.scene.time.now; // Reset start time
     this.elapsedSeconds = 0; // Reset elapsed time
     this.totalPausedDuration = 0; // Reset paused duration
@@ -69,51 +65,41 @@ export default class TimeHandler {
   handleDifficulty() {
     // Difficulty control
     if (this.elapsedSeconds == 30 && !this.crisisI) {
-      console.log("30 seconds have passed!");
       this.difficulty.update("crisisI");
       this.crisisI = true;
     } else if (this.elapsedSeconds == 60 && !this.crisisII) {
-      console.log("60 seconds have passed!");
       this.difficulty.update("crisisII");
       this.crisisI = false;
       this.crisisII = true;
     } else if (this.elapsedSeconds == 90 && !this.crisisIII) {
-      console.log("90 seconds have passed!");
       this.difficulty.update("crisisIII");
       this.crisisII = false;
       this.crisisIII = true;
     } else if (this.elapsedSeconds == 120 && !this.crisisIV) {
-      console.log("120 seconds have passed!");
       this.difficulty.update("crisisIV");
       this.crisisIII = false;
       this.crisisIV = true;
     } else if (this.elapsedSeconds == 150 && !this.crisisV) {
-      console.log("150 seconds have passed!");
       this.difficulty.update("crisisV");
       this.crisisIV = false;
       this.crisisV = true;
     } else if (this.elapsedSeconds == 180 && !this.crisisVI) {
-      console.log("180 seconds have passed!");
       this.difficulty.update("crisisVI");
       this.crisisV = false;
       this.crisisVI = true;
     } else if (this.elapsedSeconds == 210 && !this.crisisVII) {
-      console.log("210 seconds have passed!");
       this.difficulty.update("crisisVII");
       this.crisisVI = false;
       this.crisisVII = true;
     } else if (this.elapsedSeconds == 240 && !this.crisisVIII) {
-      console.log("240 seconds have passed!");
       this.difficulty.update("crisisVIII");
       this.crisisVII = false;
       this.crisisVIII = true;
     } else if (this.elapsedSeconds == 270 && !this.crisisIX) {
-      console.log("270 seconds have passed!");
       this.difficulty.update("crisisIX");
       this.crisisVIII = false;
       this.crisisIX = true;
     } else if (this.elapsedSeconds == 300 && !this.crisisX) {
-      console.log("300 seconds have passed!");
       this.difficulty.update("crisisX");
       this.crisisIX = false;
       this.crisisX = true;

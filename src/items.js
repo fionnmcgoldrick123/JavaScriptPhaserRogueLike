@@ -83,7 +83,7 @@ export default class Items extends Phaser.Scene {
       {
         name: "Increase Speed",
         effect: () => {
-          (this.mainScene.playerSpeed += 500),
+          (this.mainScene.playerSpeed += 50),
             (this.mainScene.playerSpeed = Math.min(
               500,
               this.mainScene.playerSpeed
@@ -96,44 +96,44 @@ export default class Items extends Phaser.Scene {
       {
         name: "Fire Rate",
         effect: () => {
-          this.mainScene.fireRate -= 1000; // Reduce the time between shots by 100ms
+          this.mainScene.fireRate -= 100; // Reduce the time between shots by 100ms
           this.mainScene.fireRate = Math.max(50, this.mainScene.fireRate); // Ensure minimum fire rate is 100ms
           this.mainScene.restartLaserTimer(); // Restart timer with new fire rate
         },
-        description: "Reduce the time between shots by 100ms",
+        description: "Reduce the time between shots by 100",
         rarity: { min: 51, max: 85 }, //uncommon 34% chance
         color: 0x00ff00,
       },
       {
         name: "Magnet",
         effect: () => {
-          (this.mainScene.followThreshold += 1000),
+          (this.mainScene.followThreshold += 50),
             (this.mainScene.followThreshold = Math.min(
               350,
               this.mainScene.followThreshold
             ));
         },
-        description: "Increases player pickup range by +10",
+        description: "Increases player pickup range by +50",
         rarity: { min: 51, max: 85 }, //uncommon 34% chance
         color: 0x00ff00,
       },
       {
         name: "Laser Speed",
         effect: () => {
-          this.mainScene.laserSpeed += 1000;
+          this.mainScene.laserSpeed += 200;
           this.mainScene.laserSpeed = Math.min(1000, this.mainScene.laserSpeed);
         },
-        description: "Increases laser speed by +100",
+        description: "Increases laser speed by +200",
         rarity: { min: 0, max: 50 }, //common 50% chance
         color: 0xffffff,
       },
       {
         name: "Enemy Speed",
         effect: () => {
-          this.mainScene.enemySpeed -= 50; // Decrease enemy speed by 50
+          this.mainScene.enemySpeed -= 10; // Decrease enemy speed by 50
           this.mainScene.enemySpeed = Math.max(50, this.mainScene.enemySpeed); // Ensure minimum speed is 50
         },
-        description: "Decreases enemy speed by -50",
+        description: "Decreases enemy speed by -10",
         rarity: { min: 51, max: 85 }, //uncommon 34% chance
         color: 0x00ff00,
       },
@@ -148,7 +148,7 @@ export default class Items extends Phaser.Scene {
       {
         name: "Laser-Splosion",
         effect: () => (this.mainScene.explodeIntoLasers = true),
-        description: "Enemies explode into more lasers!",
+        description: "Enemies have a may to explode into more lasers!",
         rarity: { min: 96, max: 100 }, //legendary 4% chance
         color: 0xffff00,
       },
@@ -179,7 +179,6 @@ export default class Items extends Phaser.Scene {
 
     for (let i = 0; i < 3; i++) {
       const rarityRoll = Phaser.Math.Between(1, 100); // Roll a number between 1 and 100
-      console.log(`Dice roll ${i + 1}: ${rarityRoll}`);
 
       // Filter items matching the rarity roll and not already selected
       const availableItems = allItems.filter(
@@ -203,8 +202,6 @@ export default class Items extends Phaser.Scene {
   }
 
   selectItem(item) {
-    console.log("Item selected!");
-    console.log(`Selected: ${item.name}`);
 
     // Apply the selected item's effect
     item.effect(); // Use the effect on mainScene

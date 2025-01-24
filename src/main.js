@@ -5,7 +5,6 @@ import TimeHandler from "./time.js";
 import PauseMenu from "./pause.js";
 import Exp from "./exp.js";
 import Items from "./items.js";
-import Difficulty from "./difficulty.js";
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -72,73 +71,64 @@ export default class GameScene extends Phaser.Scene {
   }
 
   consolidateOrbs() {
-
-    // Collect all active orbs
     const activeOrbs = this.orbGroup.getChildren().filter((orb) => orb.active);
     if (activeOrbs.length === 0) return;
-
+  
     const playerX = this.player.x;
     const playerY = this.player.y;
-
-    // If yellow orb is already spawned, just accumulate XP
-    const totalExp = this.expGained; // Adding experience for new orbs
-
+  
+    const totalExp = this.expGained;
+  
+    // If the yellow orb already exists and is active, accumulate XP
     if (this.yellowOrb && this.yellowOrb.active) {
-      this.yellowOrb.totalExp += totalExp; // Add experience to the existing yellow orb
-      return; // Exit since the yellow orb is already handling excess orbs
+      this.yellowOrb.totalExp += totalExp;
+      return;
     }
-
-    // Determine the furthest orb from the player
+  
+    // Find the furthest orb from the player
     let furthestOrb = activeOrbs[0];
     let maxDistance = 0;
-
+  
     activeOrbs.forEach((orb) => {
-      const distance = Phaser.Math.Distance.Between(
-        playerX,
-        playerY,
-        orb.x,
-        orb.y
-      );
+      const distance = Phaser.Math.Distance.Between(playerX, playerY, orb.x, orb.y);
       if (distance > maxDistance) {
         maxDistance = distance;
         furthestOrb = orb;
       }
     });
-
-    // Spawn the yellow orb at the furthest orb's position
+  
+    // If the yellow orb doesn't exist, create it
     if (!this.yellowOrb) {
-      this.yellowOrb = this.add.circle(
-        furthestOrb.x,
-        furthestOrb.y,
-        3,
-        0xffff00
-      ); // Yellow color
-      this.physics.add.existing(this.yellowOrb);
+      this.yellowOrb = this.add.circle(furthestOrb.x, furthestOrb.y, 6, 0xffff00);
+      this.physics.add.existing(this.yellowOrb); // Add physics body
       this.yellowOrb.body.setCollideWorldBounds(true);
       this.yellowOrb.body.setBounce(1);
-      this.yellowOrb.canBeCollected = true;
-      this.yellowOrb.totalExp = totalExp; // Initialize experience accumulation
+      this.yellowOrb.canBeCollected = true; // Initialize collectibility
+      this.yellowOrb.totalExp = totalExp;
 
-      // Add overlap detection
-      this.physics.add.collider(this.player, this.yellowOrb, () => {
+       // Add overlap detection
+       this.physics.add.collider(this.player, this.yellowOrb, () => {
         this.collectYellowOrb();
       });
 
-      console.log(
-        `Yellow orb spawned at (${this.yellowOrb.x}, ${this.yellowOrb.y})`
-      );
     } else {
-      // If the yellow orb exists but isn't active, reactivate it
+      // Reactivate the yellow orb if it already exists
       this.yellowOrb.setPosition(furthestOrb.x, furthestOrb.y);
       this.yellowOrb.setActive(true);
       this.yellowOrb.setVisible(true);
-      this.yellowOrb.body.setVelocity(
-        Phaser.Math.Between(-50, 50),
-        Phaser.Math.Between(-50, 50)
-      );
-      this.yellowOrb.totalExp = totalExp; // Reset experience accumulation
+  
+      // Ensure the physics body exists
+      if (!this.yellowOrb.body) {
+        this.physics.add.existing(this.yellowOrb);
+        this.yellowOrb.body.setCollideWorldBounds(true);
+        this.yellowOrb.body.setBounce(1);
+      }
+  
+      this.yellowOrb.canBeCollected = true; // Reset collectibility
+      this.yellowOrb.totalExp = totalExp; // Reset XP accumulation
     }
   }
+  
 
   collectYellowOrb() {
   if (!this.yellowOrb.canBeCollected) return;
@@ -153,7 +143,6 @@ export default class GameScene extends Phaser.Scene {
   this.expInstance.exp += totalExp;
   this.expInstance.handleExp(); // Trigger level up if applicable
 
-  console.log(`Gained ${totalExp} experience from the yellow orb!`);
 }
 
   restartLaserTimer() {
@@ -261,7 +250,6 @@ export default class GameScene extends Phaser.Scene {
         this.scene.restart(); // Restart the game scene
       } else {
         this.playerHealth--;
-        console.log("Player Health: " + this.playerHealth);
         //delay before player can take damage again
 
         this.canTakeDamage = false;
@@ -296,7 +284,6 @@ export default class GameScene extends Phaser.Scene {
         this.scene.restart();
       } else {
         this.playerHealth--;
-        console.log("Player Health: " + this.playerHealth);
 
         this.canTakeDamage = false;
         //change color of circle to gray
